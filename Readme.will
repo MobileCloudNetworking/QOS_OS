@@ -1,0 +1,19 @@
+Questo file contiene la descrizione dei file contenuti all'interno del repository:
+
+- commands.txt
+	insieme di comandi utili o meno utili per svolgere il lavoro (es: comandi git)
+
+- connect_to_VM.120.sh
+	script eseguibile, permette di connettersi alla KobayashiMaru senza doversi loggare
+	
+- demo-openrc.sh
+	insieme di variabili d'ambiente per poter utilizzare comandi CLI di openstack
+	
+- qos_variables.sh
+	definisce un'insieme di variabili d'ambiente delle cartelle più frequentemente utilizzate per lo sviluppo
+	
+- test_qos_easy.sh
+	*** IN SVILUPPO ***
+
+- willkey.pem
+	chiave di pari da utilizzare per certi template Heat in cui viene richiesta

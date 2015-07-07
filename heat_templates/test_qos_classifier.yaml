@@ -22,20 +22,13 @@ resources:
         - start: 5.0.0.100
           end: 5.0.0.200
           
-  test_qos:
-    type: OS::Neutron::qos
+  test_qos_classifier:
+    type: OS::Neutron::qos_classifier
     properties:
-      name: qos
-      qos_parameter: { get_resource: test_qos_param }
-      
-  test_qos_param:
-    type: OS::Neutron::qos_param
-    properties:
-      name: qos_param
-      type: delay
-      policy: 4
-      classifier: 
-      
+      name: qos_class
+      type: L3_protocol
+      policy: tcp
+     
   host1:
     type: OS::Nova::Server
     properties:
