@@ -1,0 +1,30 @@
+# --- WILL's Openstack ALL-IN-ONE Juno installation guide --- # 
+
+#On a new image just deployed on a Ubuntu 14.4 within VM  do:
+
+#set keyboard layout to us
+
+sudo loadkeys us
+
+#system update
+
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install git
+
+# right repository right #
+git clone https://git.openstack.org/openstack-dev/devstack (inside directory /home/nextworks/ so you can have all the rights)
+
+# copy "local.conf" and change IP address inside the conf file #
+scp /.../local.conf nextworks@IP_ADDRESS:/home/nextworks/devstack
+
+# installation script #
+./stack.sh
+
+#setting all passwords to "nextworks" but before change root user password with "nextworks".
+#otherwise insert no password for the database when ask with 
+#SET PASSWORD FOR 'root'@'localhost' = PASSWORD('nextworks');
+
+------------------ END ------------------
+
+#PS: whenever openstack get mad run ./rejoin-stack.sh

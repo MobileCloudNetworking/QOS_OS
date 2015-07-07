@@ -1,0 +1,41 @@
+# LOCAL HEAT direcotory
+cd openstack/heat_juno/heat/engine/resources/
+
+# syntax verify on LOCAL qos source file
+python -m py_compile qos_heat.py
+
+# copy the yaml file to the template directory on .120 machine
+scp qos_enviroment.yaml nextworks@10.0.11.120:/home/nextworks/openstack/heat_templates
+
+# launch the selected template
+heat stack-create -f template_name.yaml -P image_id=cirros-0.3.2-x86_64 -P public_net=$NET_ID -P secgroup_id=$SEC_ID First_Stack
+
+# update the selected template
+heat stack-update stack_name -f template_name.yaml -P PARAMETER_NAME=PARAMETER_NEW_VALUE...
+
+# verify stack(s) state
+heat stack-list
+
+# REPO HEAT direcotory
+cd ~/openstack/heat_juno/heat/engine/resources && nano heat_qos.py
+
+# check python syntax
+python -m py_compile script.py
+
+# make a script executable
+#!/usr/bin/env python
+
+# make the source file executable
+chmod +x hello.py
+
+# execute the script
+./hello.py
+
+# killa processo heat-engine
+screen -x stack
+(ctrl+a+m scorro i demoni verso destra) quando trovo h-eng killo con (ctrl+c) per riattivare il demone freccia verso l'alto
+e invio
+(ctrl+a+d esco da screen)
+
+# directory file di conf Openstack
+/etc/
