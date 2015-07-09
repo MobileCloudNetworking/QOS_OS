@@ -350,3 +350,65 @@ class NeutronPluginBaseV2(object):
         """
         return (self.__class__.start_rpc_listeners !=
                 NeutronPluginBaseV2.start_rpc_listeners)
+                
+	@abc.abstractmethod
+    def delete_network(self, context, id):
+        """Delete a network.
+
+        :param context: neutron api request context
+        :param id: UUID representing the network to delete.
+        """
+        pass
+
+	# follow abstract methods regards qos, qos_param and qos_classifier
+	# by Marco Del Seppia
+    @abc.abstractmethod
+    def create_qos_classifier(self, context, qos_classifier):
+        """Create a qos.
+
+        Create a qos resource which can be attached i.e. network, subnet, server...
+
+        :param context: neutron api request context
+        :param qos_classifier: dictionary describing the qos_classifier 
+								as listed in the  :obj:`RESOURCE_ATTRIBUTE_MAP` object
+								in :file:`neutron/api/v2/attributes.py`.  All keys will
+								be populated.
+        """
+        pass
+
+    @abc.abstractmethod
+    def update_qos_classifier(self, context, id, qos_classifier):
+        """Update values of a port.
+
+        :param context: neutron api request context
+        :param id: UUID representing the qos_classifier to update.
+        :param port: dictionary with keys indicating fields to update.
+                     valid keys are those that have a value of True for
+                     'allow_put' as listed in the :obj:`RESOURCE_ATTRIBUTE_MAP`
+                     object in :file:`neutron/api/v2/attributes.py`.
+        """
+        pass
+
+    @abc.abstractmethod
+    def get_qos_classifier(self, context, id, fields=None):
+        """Retrieve a port.
+
+        :param context: neutron api request context
+        :param id: UUID representing the qos_classifier to fetch.
+        :param fields: a list of strings that are valid keys in a port
+                       dictionary as listed in the
+                       :obj:`RESOURCE_ATTRIBUTE_MAP` object in
+                       :file:`neutron/api/v2/attributes.py`. Only these fields
+                       will be returned.
+        """
+        pass
+
+    @abc.abstractmethod
+    def delete_qos_classifier(self, context, id):
+        """Delete a qos_classifier.
+
+        :param context: neutron api request context
+        :param id: UUID representing the qos_classifier to delete.
+        """
+        pass
+

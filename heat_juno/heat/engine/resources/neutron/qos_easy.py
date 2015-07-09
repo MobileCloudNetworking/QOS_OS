@@ -5,6 +5,7 @@ __version__ = "0.1"
 __maintainer__ = "Marco Del Seppia"
 __email__ = "m.delseppia@nextworks.it"
 __status__ = "Developing"
+__logFilename__ = "qos.log"
 
 import random
 import string
@@ -12,6 +13,9 @@ import string
 import logging
 
 from heat.engine.resources.neutron import neutron
+# resources where i can attach the qos_*
+from heat.engine.resources.neutron import port
+from heat.engine.resources.neutron import net
 from heat.common import exception
 from heat.common.i18n import _
 from heat.engine import attributes
@@ -20,6 +24,10 @@ from heat.engine import properties
 from heat.engine import resource
 from heat.engine import support
 from enum import Enum
+# openstack log
+from heat.openstack.common import log as logging
+
+LOG = logging.getLogger(__logFilename__)
 
 # define a set of types like enumerates do
 def enum(*sequential, **named):
@@ -163,11 +171,11 @@ class qos_classifier(neutron.NeutronResource):
         logger = createLog("qos_classifier.log")
         # check if type is an interface and the policy is a port (no otherwise)
         if self.properties['type'] == classifier_type['destinationIf'] and isinstance(self.properties['policy'], Port) != 0:
-            logger.debug('a qos classifier with type destinationIf needs a port for policy')
+            LOG.error('a qos classifier with type destinationIf needs a port for policy')
             raise exception.InvalidTemplateAttribute("qos_classifier policy")
         # check if type is an L3 protocol and the policy an avalaible transport protocol (no otherwise)
         if self.properties['type'] == classifier_type['L3_protocol'] and check_type(self) != 0:
-            logger.debug('a qos classifier with type L3_protocol needs an avalaible transport protocol for policy')
+            LOG.error('a qos classifier with type L3_protocol needs an avalaible transport protocol for policy')
             raise exception.InvalidTemplateAttribute("qos_classifier policy")
         # !!! TO IMPLEMENTS ON NEUTRON SIDE !!!
         #props = self.prepare_properties(
@@ -191,7 +199,7 @@ class qos_classifier(neutron.NeutronResource):
 
     # --- AUXILIARY FUNCTIONS --- #
 
-    # check if the type is correct
+    # check if the type is correct 
     def check_type(self):
         for x in classifierType:
             if self.properties['type'] == x:

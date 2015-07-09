@@ -1,0 +1,15 @@
+# plug-in estendono QUESTO modulo (contiene funzioni per creare risorse nel DB, cancellarle, ecc)
+/opt/stack/heat/heat/engine/resource.py
+
+# insieme di funzioni statiche che lavorano su oggetti di rete come ind. IP, CIDR, subnet, ecc
+# contiene funzioni di creazione di risorse come "def create_port()"...
+/home/marco/Scrivania/openstack/neutron_juno/neutron/db/db_base_plugin_v2.py
+
+# interfaccia/classe astratta mapping tra heat to neutron
+/home/marco/Scrivania/openstack/neutron_juno/neutron/neutron_plugin_basev2.py
+
+# per poter accedere a keystone da heat 
+openstack/heat_juno/heat/common/heat_keystoneclient.py
+
+# autenticazione in keystone da heat 
+openstack/heat_juno/contrib/heat_keystoneclient_v2/heat_keystoneclient_v2/client.py
