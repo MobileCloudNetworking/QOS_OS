@@ -38,6 +38,92 @@ def createLog(filename):
     # add ch to logger
     logger.addHandler(ch)
     return logger;
+
+class qos(neutron.NeutronResource):
+	
+    # define the settings the template author can manipulate when including that resource in a template
+    # Some examples would be:
+    # Which flavor and image to use for a Nova server
+    # The port to listen to on Neutron LBaaS nodes	
+    # The size of a Cinder volume
+
+    PROPERTIES = (
+        NAME, QOS_PARAMETER
+    ) = (
+        'name','qos_parameter',
+    )
+    
+    properties_schema = {
+        NAME: properties.Schema(
+            properties.Schema.STRING,
+            _('A string specifying a symbolic name for the resource, which is required to be unique.'),
+            required=True,
+            update_allowed=True,
+        ),
+        QOS_PARAMETER: properties.Schema(
+            # let give one or more qos_param resource
+            properties.Schema.LIST,
+            _('One or more parametric resource to be rated to enhance the qos.'),
+            default=[],
+            required=True,
+            update_allowed=True,
+        ),
+    }
+    
+    # describe runtime state data of the physical resource that the plug-in can expose to other resources in a Stack.
+    # Generally, these aren t available until the physical resource has been created and is in a usable state.
+    # Some examples would be:
+    # The host id of a Nova server
+    # The status of a Neutron network
+    # The creation time of a Cinder volume
+    # ---- HELPFUL FOR THE OUTPUTS: ---- 
+    
+    #ATTRIBUTES = (
+        #PORT_ID,
+    #) = (
+        #"port_id",
+    #)
+    
+    #attributes_schema = {
+        #PORT_ID: attributes.Schema(
+        #_("Resource to be ")
+        #),
+    #}
+    
+    def handle_create(self):
+        logger = createLog('qos.log')
+        logger.debug('Checking qos_parameter parameter')
+        # empty list
+        try:
+            if self.properties['qos_parameter'] == []:
+                logger.debug('qos parameter list empty, creation failed')
+        except Exception as ex:
+            raise
+        # check properties resources type
+        try:
+            for x in self.properties['qos_parameter']:
+                if isinstance(x, qos_param) == false:
+                    print('qos parameter list must have qos-parameter types, creation failed')
+        except Exception as ex:
+            raise
+
+    def check_create_complete(self, token):
+        pass;
+
+    def handle_delete(self):
+        # delete resource from Neutron
+        #client = self.neutron()
+        #try:
+            #client.delete_qos(self.resource_id)
+        #except Exception as ex:
+            #logging.debug('can\'t delete resource ' + self. properties['name'])
+            #self.client_plugin().ignore_not_found(ex)
+        #else:
+            #return self._delete_task();
+        pass;
+    
+    def check_delete_complete(self, token):
+        pass;
     
 class qos_param(neutron.NeutronResource): 
     
@@ -119,8 +205,7 @@ class qos_param(neutron.NeutronResource):
             if self.properties['type'] == x:
                 return 0;
         return -1;
-          
-    
+      
 class qos_classifier(neutron.NeutronResource):	
     
     PROPERTIES = (
@@ -151,56 +236,57 @@ class qos_classifier(neutron.NeutronResource):
     }
     
     # qos_classifier types constants
-    classifierType = enum('destinationIf', 'L3_protocol')
+    classifier_type = enum('destinationIf', 'L3_protocol')
     
     # qos_classifier policy constants
-    classifierPolicy = enum('UDP', 'TCP')
+    classifier_policy = enum('udp', 'tcp')
     
     def handle_create(self):
-        logging.warning('FUCK')
-        sys.stdout.write("FUCK")
-        # check correct syntax
-        logger = createLog("qos_classifier.log")
-        # check if type is an interface and the policy is a port (no otherwise)
-        if self.properties['type'] == classifier_type['destinationIf'] and isinstance(self.properties['policy'], Port) != 0:
-            logger.debug('a qos classifier with type destinationIf needs a port for policy')
-            raise exception.InvalidTemplateAttribute("qos_classifier policy")
-        # check if type is an L3 protocol and the policy an avalaible transport protocol (no otherwise)
-        if self.properties['type'] == classifier_type['L3_protocol'] and check_type(self) != 0:
-            logger.debug('a qos classifier with type L3_protocol needs an avalaible transport protocol for policy')
-            raise exception.InvalidTemplateAttribute("qos_classifier policy")
-        # !!! TO IMPLEMENTS ON NEUTRON SIDE !!!
-        #props = self.prepare_properties(
-            #self.properties,
-            #self.physical_resource_name())
-        #classifier = self.neutron().create_qos_classifier({'qos_classifier': props})[
-            #'qos_classifier']
-        #self.resource_id_set(classifier['id'])
-        pass;
+        print "willaccio"
+        logging.basicConfig(filename='qos_classifier.log',level=logging.DEBUG)
+        try:
+            # check if type is an interface and the policy is a port (no otherwise)
+            if self.properties['type'] == classifier_type['destinationIf'] and isinstance(self.properties['policy'], Port) == false:
+                logger.debug('a qos classifier with type destinationIf needs a port for policy')
+        except Exception as ex:
+            raise
+        try:
+            # check if type is an L3 protocol and the policy an avalaible transport protocol (no otherwise)
+            print 'willy!'
+            if self.properties['type'] == classifier_type['L3_protocol'] and check_type(self) != 0:
+                logger.debug('a qos classifier with type L3_protocol needs an avalaible transport protocol for policy')
+        except Exception as ex:
+            raise
+        return;
             
+    def check_create_complete(self,token):
+        pass;
+
     def handle_delete(self):
-        # !!! TO IMPLEMENTS ON NEUTRON SIDE !!!
+        # delete resource from Neutron
         #client = self.neutron()
         #try:
             #client.delete_qos_classifier(self.resource_id)
         #except Exception as ex:
+            #logging.debug('can\'t delete resource ' + self. properties['name'])
             #self.client_plugin().ignore_not_found(ex)
         #else:
-            #return self._delete_task()
+            #return self._delete_task();
         pass;
-
-    # --- AUXILIARY FUNCTIONS --- #
-
+    
+    def check_delete_complete(self, token):
+        pass;
+        
     # check if the type is correct
     def check_type(self):
-        for x in classifierType:
+        for x in classifier_type:
             if self.properties['type'] == x:
                 return 0;
         return -1;
         
     # check if the policy is correct
     def check_policy(self):
-        for x in classifierPolicy:
+        for x in classifier_policy:
             if self.properties['policy'] == x:
                 return 0;
         return -1;
@@ -208,5 +294,7 @@ class qos_classifier(neutron.NeutronResource):
 # map the class to a resource name
 def resource_mapping():
     return {
+        'OS::Neutron::qos': qos,
+        'OS::Neutron::qos_param': qos_param,
         'OS::Neutron::qos_classifier': qos_classifier,
     }

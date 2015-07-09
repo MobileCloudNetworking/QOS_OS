@@ -27,7 +27,7 @@ resources:
     properties:
       name: qos_class
       type: L3_protocol
-      policy: tcp
+      policy: GHF
      
   host1:
     type: OS::Nova::Server

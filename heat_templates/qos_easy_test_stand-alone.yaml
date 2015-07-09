@@ -4,7 +4,6 @@ description: >
   This template creates 2 hosts. Each Host is connected to a private network. A router is 
   created with one interface per subnet to allow host connectivity.
 
-
 resources:
   test_network_1:
     type: OS::Neutron::Net

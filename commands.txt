@@ -39,3 +39,6 @@ e invio
 
 # directory file di conf Openstack
 /etc/
+
+# svuota tabella dei routers in neutron
+DELETE from routers  where status = 'ACTIVE';
