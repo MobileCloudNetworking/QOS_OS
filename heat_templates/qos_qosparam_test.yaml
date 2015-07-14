@@ -1,7 +1,9 @@
 heat_template_version: 2013-05-23
 
 description: >
-  This template (based on qos_enviroment.yaml) test the inputs for the new implemented Heat resources
+  This template creates 2 hosts. Each Host is connected to a private network. A router is 
+  created with one interface per subnet to allow host connectivity.
+
 resources:
   test_network_1:
     type: OS::Neutron::Net
@@ -19,11 +21,12 @@ resources:
         - start: 5.0.0.100
           end: 5.0.0.200
           
-  test_qos_easy1:
-    type: OS::Neutron::qos
+  test_qos_param:
+    type: OS::Neutron::qos_param
     properties:
-      qos_parameter: 
-  
+      type: delay
+      policy: 4
+      
   host1:
     type: OS::Nova::Server
     properties:

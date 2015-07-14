@@ -5,7 +5,7 @@
 # contiene funzioni di creazione di risorse come "def create_port()"...
 /home/marco/Scrivania/openstack/neutron_juno/neutron/db/db_base_plugin_v2.py
 
-# interfaccia/classe astratta mapping tra heat to neutron
+# classe astratta mapping tra heat to neutron NO!
 /home/marco/Scrivania/openstack/neutron_juno/neutron/neutron_plugin_basev2.py
 
 # per poter accedere a keystone da heat 
@@ -13,3 +13,6 @@ openstack/heat_juno/heat/common/heat_keystoneclient.py
 
 # autenticazione in keystone da heat 
 openstack/heat_juno/contrib/heat_keystoneclient_v2/heat_keystoneclient_v2/client.py
+
+# mapping comunicazione da heat verso neutron
+/usr/local/lib/python2.7/dist-packages/neutronclient/v2_0
