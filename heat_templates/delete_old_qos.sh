@@ -1,13 +1,13 @@
 #!/bin/bash
 
-if rm $RESOURCES/qos_easy.pyc; then 
-	echo "qos_easy.pyc deleted"
+if rm $RESOURCES/qos.pyc; then 
+	echo "qos.pyc deleted"
 else
-	echo "!!! qos_easy.pyc not deleted !!!"
+	echo "!!! qos.pyc not deleted !!!"
 fi	
-if rm $RESOURCES/qos_easy.py; then 
-	echo "qos_easy.py deleted"
+if rm $RESOURCES/qos.py; then 
+	echo "qos.py deleted"
 else
-	echo "!!! qos_easy.py not deleted !!!"
+	echo "!!! qos.py not deleted !!!"
 fi
 exit

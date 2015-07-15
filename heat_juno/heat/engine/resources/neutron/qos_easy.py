@@ -1,4 +1,15 @@
-# implements QoS resource in Heat
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
 
 __author__ = "Marco Del Seppia"
 __version__ = "0.1"
@@ -46,14 +57,14 @@ parameterType = enum('Rate-limit', 'DSCP', 'Minimum-Reserved-Bandwidth', 'Delay'
 classifierType = enum('destinationIf', 'L3_protocol')
     
 # qos_classifier policy constants
-classifierPolicy = enum('UDP', 'TCP')    
+classifierPolicy = enum('UDP', 'TCP')
 
 class qos(neutron.NeutronResource):
     """
     A resource for creating Qos for neutron
     """
     PROPERTIES = (
-        NAME, QOS_PARAMETER
+        QOS_PARAMETER
     ) = (
         'qos_parameter',
     )
@@ -129,9 +140,9 @@ class qos_param(neutron.NeutronResource):
     """
     
     PROPERTIES = (
-        TYPE, POLICY, CLASSIFIER,
+        TYPE, POLICY, QOS_CLASSIFIER,
     ) = (
-        'type','policy','classifier'
+        'type','policy','qos_classifier'
     )
     
     properties_schema = {
@@ -161,9 +172,9 @@ class qos_param(neutron.NeutronResource):
         Validate any of the provided params
         '''
         # check if type is an interface and the policy is a port (no otherwise)
-        #if param_check_type(self) != 0:
-            #LOG.error('qos param type unknown, creation failed')
-            #raise exception.InvalidTemplateAttribute("qos_param type, creation failed")
+        if param_check_type(self) != 0:
+            LOG.error('qos param type unknown, creation failed')
+            raise exception.InvalidTemplateAttribute("qos_param type, creation failed")
         # check if type is an L3 protocol and the policy an avalaible transport protocol (no otherwise)
         if hasattr(self, self.QOS_CLASSIFIER) and isinstance(self.properties[self.QOS_CLASSIFIER], qos_classifier) != 0:
             LOG.error('the classifier passed is of a type unknown, creation failed')
@@ -208,7 +219,8 @@ class qos_param(neutron.NeutronResource):
             #self.client_plugin().ignore_not_found(ex)
         #else:
             #return self._delete_task();
-        return;
+
+    # --- AUXILIARY FUNCTIONS --- #
 
     # check if the type of the resources is correct
     def param_check_type(self):
@@ -261,6 +273,14 @@ class qos_classifier(neutron.NeutronResource):
         '''
         Create a new qos_classifier resource
         '''
+        # check if type is an interface and the policy is a port (no otherwise)
+        if self.properties[self.TYPE] == classifierType.destinationIf and isinstance(self.properties[self.POLICY], Port) != 0:
+            LOG.error('a qos classifier with type destinationIf needs a port for policy, creation failed')
+            raise exception.InvalidTemplateAttribute("qos_classifier policy, creation failed")
+        # check if type is an L3 protocol and the policy an avalaible transport protocol (no otherwise)
+        if self.properties[self.TYPE] == classifierType.L3_protocol and classifier_check_policy(self) != 0:
+            LOG.error('a qos classifier with type L3_protocol needs an avalaible transport protocol for policy, creation failed')
+            raise exception.InvalidTemplateAttribute("qos_classifier policy, creation failed")
         # resource infos
         msg = "type %s, policy=%s," %\
             (self.properties[self.TYPE], self.properties[self.POLICY])
