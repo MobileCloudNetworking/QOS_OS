@@ -3,6 +3,7 @@ heat_template_version: 2013-05-23
 description: >
   This template creates 2 hosts. Each Host is connected to a private network. A router is 
   created with one interface per subnet to allow host connectivity.
+  !!! - CREATE 2 WORKING qos_classifier - !!!
 
 
 resources:
@@ -21,12 +22,43 @@ resources:
       allocation_pools:
         - start: 5.0.0.100
           end: 5.0.0.200
-          
-  test_qos_classifier:
+     
+  host1:
+    type: OS::Nova::Server
+    properties:
+      name: host1
+      image: cirros-0.3.2-x86_64-uec
+      flavor: m1.tiny
+      networks:
+        - network: { get_resource: test_network_1 }
+
+  host1_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: test_network_1 }
+      fixed_ips:
+        - subnet_id: { get_resource: test_subnet_1 }
+
+  router:
+    type: OS::Neutron::Router
+
+  router_interface1:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet_id: { get_resource: test_subnet_1 }
+      
+  test_qos_classifier_1:
     type: OS::Neutron::qos_classifier
     properties:
       type: L3_protocol
       policy: TCP
+      
+  test_qos_classifier_2:
+    type: OS::Neutron::qos_classifier
+    properties:
+      type: L3_protocol
+      policy: UDP
      
   host1:
     type: OS::Nova::Server

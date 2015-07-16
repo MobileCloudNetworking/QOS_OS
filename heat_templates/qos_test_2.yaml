@@ -1,12 +1,61 @@
 heat_template_version: 2013-05-23
 
 description: >
-  This template (based on qos_enviroment.yaml) test the inputs for the new implemented Heat resources
+  This template creates 2 hosts. Each Host is connected to a private network. A router is 
+  created with one interface per subnet to allow host connectivity.
+  !!! - TESTING TEMPLATE BY GIADA EXCEPT FOR THE qos_id IN host1_port AND qos_id IN test_network1 - !!!
+  
 resources:
+
   test_network_1:
     type: OS::Neutron::Net
     properties:
       name: test_network_1
+
+  qos1:
+    type: OS::Neutron::qos
+    properties:
+      qos_parameter:
+        - qos_parameter: { get_resource: qos_param1 }
+        - qos_parameter: { get_resource: qos_param3 }
+      
+  qos2:
+    type: OS::Neutron::qos
+    properties:
+      qos_parameter:
+        - qos_parameter: { get_resource: qos_param2 }
+  
+  qos_param1:
+    type: OS::Neutron::qos_param
+    properties:
+      type: Rate-limit
+      policy: 1024 kbps
+      qos_classifier: { get_resource: qos_classifier_2 }
+
+  qos_param2:
+    type: OS::Neutron::qos_param
+    properties:
+      type: Delay
+      policy: 2 ms
+      qos_classifier: { get_resource: qos_classifier_1 }
+      
+  qos_param3:
+    type: OS::Neutron::qos_param
+    properties:
+      type: Delay
+      policy: 4 ms
+      
+  qos_classifier_1:
+    type: OS::Neutron::qos_classifier
+    properties:
+      type: destinationIf
+      policy: { get_resource: host1_port }
+      
+  qos_classifier_2:
+    type: OS::Neutron::qos_classifier
+    properties:
+      type: L3_protocol
+      policy: TCP
 
   test_subnet_1:
     type: OS::Neutron::Subnet
@@ -18,12 +67,7 @@ resources:
       allocation_pools:
         - start: 5.0.0.100
           end: 5.0.0.200
-          
-  test_qos_easy1:
-    type: OS::Neutron::qos
-    properties:
-      qos_parameter: 
-  
+     
   host1:
     type: OS::Nova::Server
     properties:
@@ -31,9 +75,40 @@ resources:
       image: cirros-0.3.2-x86_64-uec
       flavor: m1.tiny
       networks:
-        - network: { get_resource: test_network_1 }
+        - port: { get_resource: host1_port }
+  host2:
+    type: OS::Nova::Server
+    properties:
+      name: host1
+      image: cirros-0.3.2-x86_64-uec
+      flavor: m1.tiny
+      networks:
+        - port: { get_resource: host2_port }
+        
+  host3:
+    type: OS::Nova::Server
+    properties:
+      name: host1
+      image: cirros-0.3.2-x86_64-uec
+      flavor: m1.tiny
+      networks:
+        - port: { get_resource: host3_port }
 
   host1_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: test_network_1 }
+      fixed_ips:
+        - subnet_id: { get_resource: test_subnet_1 }
+
+  host2_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: test_network_1 }
+      fixed_ips:
+        - subnet_id: { get_resource: test_subnet_1 }
+        
+  host3_port:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: test_network_1 }

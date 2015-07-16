@@ -14,5 +14,5 @@ openstack/heat_juno/heat/common/heat_keystoneclient.py
 # autenticazione in keystone da heat 
 openstack/heat_juno/contrib/heat_keystoneclient_v2/heat_keystoneclient_v2/client.py
 
-# mapping comunicazione da heat verso neutron
-/usr/local/lib/python2.7/dist-packages/neutronclient/v2_0
+# mapping comunicazione da heat verso neutron YES!!!!
+/usr/local/lib/python2.7/dist-packages/neutronclient/v2_0/clinet.py

@@ -16,8 +16,6 @@ resources:
   qos1:
     type: OS::Neutron::qos
     properties:
-      qos_parameter: { get resource: qos_param1 }
-      qos_parameter: { get_resource: qos_param3 } 
       
   qos2:
     type: OS::Neutron::qos

@@ -3,8 +3,30 @@ heat_template_version: 2013-05-23
 description: >
   This template creates 2 hosts. Each Host is connected to a private network. A router is 
   created with one interface per subnet to allow host connectivity.
+  !!! - CREATING TWO PARAMS WHERE THE FIRST GET A CLASSIFIER AND THE CLASSIFIER IS
+  LINKED TO A PORT - !!!
 
 resources:
+
+  qos_param1:
+    type: OS::Neutron::qos_param
+    properties:
+      type: Delay
+      policy: 4
+      qos_classifier: { get_resource: qos_classifier_1 }
+
+  qos_param2:
+    type: OS::Neutron::qos_param
+    properties:
+      type: Delay
+      policy: 4 ms
+      
+  qos_classifier_1:
+    type: OS::Neutron::qos_classifier
+    properties:
+      type: destinationIf
+      policy: { get_resource: host1_port }
+
   test_network_1:
     type: OS::Neutron::Net
     properties:
@@ -20,13 +42,7 @@ resources:
       allocation_pools:
         - start: 5.0.0.100
           end: 5.0.0.200
-          
-  test_qos_param:
-    type: OS::Neutron::qos_param
-    properties:
-      type: delay
-      policy: 4
-      
+     
   host1:
     type: OS::Nova::Server
     properties:
@@ -51,3 +67,4 @@ resources:
     properties:
       router_id: { get_resource: router }
       subnet_id: { get_resource: test_subnet_1 }
+

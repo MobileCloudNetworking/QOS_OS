@@ -1537,3 +1537,36 @@ class Client(ClientBase):
     def delete_l2vlink(self, l2vlink_id):
         """Deletes the specified L2 virtual link."""
         return self.delete(self.l2vlink_path % l2vlink_id)
+
+    # new APIs for QoS
+    @APIParamsCall
+    def create_qos(self, body=None):
+        """Creates a new QoS."""
+        return self.post(self.qos_path, body=body)
+
+    @APIParamsCall
+    def delete_qos(self, qos_id):
+        """Deletes the specified qos."""
+        return self.delete(self.qos_path % qos_id)
+
+    # new APIs for QoS_param
+    @APIParamsCall
+    def create_qos_param(self, body=None):
+        """Creates a new QoS."""
+        return self.post(self.qos_param_path, body=body)
+
+    @APIParamsCall
+    def delete_qos_param(self, qos_param_id):
+        """Deletes the specified qos_param."""
+        return self.delete(self.qos_param_path % qos_param_id)
+    
+    # new APIs for QoS_classifier
+    @APIParamsCall    
+    def create_qos_classifier(self, body=None):
+        """Creates a new QoS."""
+        return self.post(self.qos_classifier_path, body=body)
+
+    @APIParamsCall
+    def delete_qos_classifier(self, qos_classifier_id):
+        """Deletes the specified qos_classifier."""
+        return self.delete(self.qos_classifier_path % qos_classifier_id)

@@ -3,6 +3,7 @@ heat_template_version: 2013-05-23
 description: >
   This template creates 2 hosts. Each Host is connected to a private network. A router is 
   created with one interface per subnet to allow host connectivity.
+  !!! - THIS TEMPLATE NEED TO CRUSH 'CAUSE OF test_qos_classifier_3.POLICY - !!!
 
 
 resources:
@@ -50,17 +51,17 @@ resources:
   test_qos_classifier_1:
     type: OS::Neutron::qos_classifier
     properties:
-      type: 'L3_protocol'
-      policy: 'TCP'
+      type: L3_protocol
+      policy: TCP
       
   test_qos_classifier_2:
     type: OS::Neutron::qos_classifier
     properties:
-      type: 'L3_protocol'
-      policy: 'UDP'
+      type: L3_protocol
+      policy: UDP
       
   test_qos_classifier_3:
     type: OS::Neutron::qos_classifier
     properties:
-      type: 'L3_protocol'
-      policy: 'WTF'
+      type: L3_protocol
+      policy: WTF
