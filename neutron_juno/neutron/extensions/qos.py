@@ -1,0 +1,139 @@
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
+__author__ = "Marco Del Seppia"
+__version__ = "0.1"
+__maintainer__ = "Marco Del Seppia"
+__email__ = "m.delseppia@nextworks.it"
+__status__ = "Developing"
+
+from neutron.api import extensions
+from neutron.common import exceptions as qexception
+from neutron.openstack.common import log as logging
+from neutron.api.v2 import attributes as attr
+from neutron.api.v2 import resource_helper
+
+
+LOG = logging.getLogger(__name__)
+
+
+# qos Exceptions
+class qosInternalError(qexception.NeutronException):
+    """Qos exception for all the error types."""
+    message = _("%(internal)s: Internal error.")
+
+
+class qosNotFound(qexception.NotFound):
+    message = _("qos %(qos_id)s not found")
+    
+# qos_param Exceptions
+class qos_paramInternalError(qexception.NeutronException):
+    """Qos_param exception for all the error types."""
+    message = _("%(internal)s: Internal error.")
+
+
+class qos_paramNotFound(qexception.NotFound):
+    message = _("qos_param %(qos_param_id)s not found")
+    
+# qos_classifier Exceptions
+class qos_classifierInternalError(qexception.NeutronException):
+    """Qos_classifier exception for all the error types."""
+    message = _("%(internal)s: Internal error.")
+
+
+class qos_classifierNotFound(qexception.NotFound):
+    message = _("qos_classifier %(qos_classifier_id)s not found")
+
+
+RESOURCE_ATTRIBUTE_MAP = {
+    'qos': {
+        'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True, 'primary_key': True},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'validate': {'type:string': None},
+                      'required_by_policy': True, 'is_visible': True},
+        'qos_param': {'allow_post': True, 'allow_put': True,
+                   'validate': {'type:string': None},
+                   'is_visible': True, 'default': ''}
+    }
+    'qos_param': {
+		'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True, 'primary_key': True},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'validate': {'type:string': None},
+                      'required_by_policy': True, 'is_visible': True},
+        'param_type': {'allow_post': True, 'allow_put': True,
+                   'validate': {'type:string': None},
+                   'is_visible': True, 'default': ''},
+        'policy': {'allow_post': True, 'allow_put': True,
+                   'validate': {'type:string': None},
+                   'is_visible': True, 'default': ''},
+        'qos_classifier': {'allow_post': True, 'allow_put': True,
+                   'validate': {'type:string': None},
+                   'is_visible': True, 'default': ''}
+    }
+    'qos_classifier': {
+		'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True, 'primary_key': True},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'validate': {'type:string': None},
+                      'required_by_policy': True, 'is_visible': True},
+        'classifier_type': {'allow_post': True, 'allow_put': True,
+                   'validate': {'type:string': None},
+                   'is_visible': True, 'default': ''},
+        'policy': {'allow_post': True, 'allow_put': True,
+                   'validate': {'type:string': None},
+                   'is_visible': True, 'default': ''}
+    }
+}
+
+
+class qos(extensions.ExtensionDescriptor):
+
+    @classmethod
+    def get_name(cls):
+        return "qos service"
+
+    @classmethod
+    def get_alias(cls):
+        return "qos"
+
+    @classmethod
+    def get_description(cls):
+        return "Extension for Quality Of Service"
+
+    @classmethod
+    def get_namespace(cls):
+        return "http://wiki.openstack.org/Neutron/qos/API_1.0"
+
+    @classmethod
+    def get_updated(cls):
+        return "2015-07-17T90:00:00-00:00"
+
+    def get_extended_resources(self, version):
+        return RESOURCE_ATTRIBUTE_MAP if version == "2.0" else {}
+
+    @classmethod
+    def get_resources(cls):
+        plural_mappings = resource_helper.build_plural_mappings(
+            {}, RESOURCE_ATTRIBUTE_MAP)
+        attr.PLURALS.update(plural_mappings)
+        return resource_helper.build_resource_info(plural_mappings,
+                                                   RESOURCE_ATTRIBUTE_MAP,
+                                                   None)
+
+    def update_attributes_map(self, attributes):
+        super(qos, self).update_attributes_map(
+            attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP)

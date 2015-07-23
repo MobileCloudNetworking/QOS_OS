@@ -1527,17 +1527,6 @@ class Client(ClientBase):
         """Delete the specified packet filter."""
         return self.delete(self.packet_filter_path % packet_filter_id)
 
-    # These are the new API for the virtual L2 link
-    @APIParamsCall
-    def create_l2vlink(self, body=None):
-        """Creates a new L2 virtual link."""
-        return self.post(self.l2vlinks_path, body=body)
-
-    @APIParamsCall
-    def delete_l2vlink(self, l2vlink_id):
-        """Deletes the specified L2 virtual link."""
-        return self.delete(self.l2vlink_path % l2vlink_id)
-
     # new APIs for QoS
     @APIParamsCall
     def create_qos(self, body=None):

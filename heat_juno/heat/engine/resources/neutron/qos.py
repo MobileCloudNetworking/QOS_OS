@@ -16,7 +16,6 @@ __version__ = "0.1"
 __maintainer__ = "Marco Del Seppia"
 __email__ = "m.delseppia@nextworks.it"
 __status__ = "Developing"
-__logFilename__ = "qos.log"
 
 import random
 import string

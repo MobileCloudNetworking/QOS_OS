@@ -21,3 +21,5 @@ Questo file contiene la descrizione dei file contenuti all'interno del repositor
 - FIle importanti.will
 	contiene i path e i nomi dei moduli python Heat/Neutron UTILI allo sviluppo
 	
+- Heat templates v03.pdf
+	Specifiche sviluppo QoS in Heat

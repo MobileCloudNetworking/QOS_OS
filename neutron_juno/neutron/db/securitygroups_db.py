@@ -258,8 +258,10 @@ class SecurityGroupDbMixin(ext_sg.SecurityGroupPluginBase):
         return self._create_bulk('security_group_rule', context,
                                  security_group_rule)
 
+	#crea la regola di un gruppo di sicurezza
     def create_security_group_rule_bulk_native(self, context,
                                                security_group_rule):
+	# qua ritorna una lista di regole del tipo di security_group_rules
         r = security_group_rule['security_group_rules']
 
         scoped_session(context.session)
