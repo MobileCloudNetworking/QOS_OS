@@ -55,7 +55,7 @@ class qos_classifierNotFound(qexception.NotFound):
 
 
 RESOURCE_ATTRIBUTE_MAP = {
-    'qos': {
+	qos: {
         'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},
@@ -65,8 +65,8 @@ RESOURCE_ATTRIBUTE_MAP = {
         'qos_param': {'allow_post': True, 'allow_put': True,
                    'validate': {'type:string': None},
                    'is_visible': True, 'default': ''}
-    }
-    'qos_param': {
+    },
+    qos_param: {
 		'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},
@@ -82,8 +82,8 @@ RESOURCE_ATTRIBUTE_MAP = {
         'qos_classifier': {'allow_post': True, 'allow_put': True,
                    'validate': {'type:string': None},
                    'is_visible': True, 'default': ''}
-    }
-    'qos_classifier': {
+    },
+    qos_classifier: {
 		'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},

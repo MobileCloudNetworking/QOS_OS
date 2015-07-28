@@ -1834,6 +1834,34 @@ class IdentifierMap(BASEV2, HasTenant):
     csr_tunnel_id = sa.Column(sa.Integer, nullable=False)
     csr_ike_policy_id = sa.Column(sa.Integer, nullable=False)
     csr_ipsec_policy_id = sa.Column(sa.Integer, nullable=False)
+    
+#neutron/db/qos_db.py
+class qos(BASEV2, HasId, HasTenant):
+    __tablename__ = 'qos'
+
+    qos_param = sa.Column(sa.String(64),
+                sa.ForeignKey('qos_param.id', ondelete="CASCADE"),
+                nullable=False)
+    
+#neutron/db/qos_db.py
+class qos_param(BASEV2, HasId, HasTenant):
+    __tablename__ = 'qos_param'
+
+    param_type = sa.Column(sa.String(64),
+                 nullable=False)
+    policy = sa.Column(sa.String(64),
+                 nullable=False)
+    qos_classifier = sa.Column(sa.String(64),
+                     sa.ForeignKey('qos_calssifier.id', ondelete="CASCADE"))
+    
+#neutron/db/qos_db.py
+class qos_classifier(BASEV2, HasId, HasTenant):
+    __tablename__ = 'qos_classifier'
+
+    classifier_type = sa.Column(sa.String(64),
+             nullable=False)
+    policy = sa.Column(sa.String(64),
+             nullable=False)
 
 
 def get_metadata():
