@@ -87,18 +87,20 @@ class qos(neutron.NeutronResource):
             (self.properties[self.QOS_PARAMETER])
         LOG.info("qos creating: %s" % (msg,))
         
-        # !!! NEUTRON !!! #
+        # !!! XXX-NEUTRON-XXX !!! #
         # get port id if type is an interface
         #if classifier_mode == 'destinationIf':
             #port = self.neutron().show_port(self.properties[self.POLICY])
             #LOG.debug("Port=%s" % port)
+        # !!! XXX-NEUTRON-XXX !!! #
             
         # prepare message to be sent to neutron
         neutron_msg = {'qos_parameter': self.properties[self.QOS_PARAMETER]}
-        
-        #resp = self.neutron().create_qos({'qos': neutron_msg})
-        LOG.info("Neutron message=%s" % (neutron_msg,))
-        #self.resource_id_set(resp.get('qos').get('id'))
+        # !!! XXX-NEUTRON-XXX !!! #
+        # resp = self.neutron().create_qos({'qos': neutron_msg})
+        # LOG.info("Neutron message=%s" % (neutron_msg,))
+        # self.resource_id_set(resp.get('qos').get('id'))
+        # !!! XXX-NEUTRON-XXX !!! #
         self.resource_id_set(random.randint(0,10000000000))
         LOG.info("qos_classifier succesfully created: resource ID=%s" %
                     (self.resource_id,))
@@ -107,15 +109,16 @@ class qos(neutron.NeutronResource):
         '''
         Delete an existing qos resource
         '''
-        # !!! delete resource from NEUTRON !!!
-        #client = self.neutron()
-        #try:
-            #client.delete_qos(self.resource_id)
-        #except Exception as ex:
-            #LOG.error("qos exception: %s" % (ex,))
-            #self.client_plugin().ignore_not_found(ex)
-        #else:
-            #return self._delete_task();
+        # !!! XXX-NEUTRON-XXX !!! #
+        # client = self.neutron()
+        # try:
+            # client.delete_qos(self.resource_id)
+        # except Exception as ex:
+            # LOG.error("qos exception: %s" % (ex,))
+            # self.client_plugin().ignore_not_found(ex)
+        # else:
+            # return self._delete_task();
+        # !!! XXX-NEUTRON-XXX !!! #
         pass;
 
 class qos_param(neutron.NeutronResource): 
@@ -176,20 +179,22 @@ class qos_param(neutron.NeutronResource):
             (self.properties[self.TYPE], self.properties[self.POLICY], self.properties[self.QOS_CLASSIFIER])
         LOG.info("qos_param creating: %s" % (msg,))
         
-        # !!! NEUTRON !!! #
+        # !!! XXX-NEUTRON-XXX !!! #
         # get port id if type is an interface
-        #if classifier_mode == 'destinationIf':
+        # if classifier_mode == 'destinationIf':
             #port = self.neutron().show_port(self.properties[self.POLICY])
             #LOG.debug("Port=%s" % port)
+        # !!! XXX-NEUTRON-XXX !!! #
             
         # prepare message to be sent to neutron
         neutron_msg = {'type': self.properties[self.TYPE],
                        'policy': self.properties[self.POLICY],
                        'qos_classifier': self.properties[self.QOS_CLASSIFIER]}
-        
-        #resp = self.neutron().create_qos_param({'qos_param': neutron_msg})
-        LOG.info("Neutron message=%s" % (neutron_msg,))
-        #self.resource_id_set(resp.get('qos_param').get('id'))
+        # !!! XXX-NEUTRON-XXX !!! #
+        # resp = self.neutron().create_qos_param({'qos_param': neutron_msg})
+        # LOG.info("Neutron message=%s" % (neutron_msg,))
+        # self.resource_id_set(resp.get('qos_param').get('id'))
+        # !!! XXX-NEUTRON-XXX !!! #
         self.resource_id_set(random.randint(0,10000000000))
         LOG.info("qos_param succesfully created: resource ID=%s" %
                     (self.resource_id,))
@@ -198,15 +203,16 @@ class qos_param(neutron.NeutronResource):
         '''
         Delete an existing qos_parameter resource
         '''
-        # !!! NEUTRON !!!
-        #client = self.neutron()
-        #try:
-            #client.delete_qos_param(self.resource_id)
-        #except Exception as ex:
-            #LOG.error("qos_param exception: %s" % (ex,))
-            #self.client_plugin().ignore_not_found(ex)
-        #else:
-            #return self._delete_task();
+        # !!! XXX-NEUTRON-XXX !!! #
+        # client = self.neutron()
+        # try:
+            # client.delete_qos_param(self.resource_id)
+        # except Exception as ex:
+            # LOG.error("qos_param exception: %s" % (ex,))
+            # self.client_plugin().ignore_not_found(ex)
+        # else:
+            # return self._delete_task();
+		# !!! XXX-NEUTRON-XXX !!! #
 
     # --- AUXILIARY FUNCTIONS --- #
 
@@ -275,19 +281,22 @@ class qos_classifier(neutron.NeutronResource):
             (self.properties[self.TYPE], self.properties[self.POLICY])
         LOG.info("qos_classifier creating: %s" % (msg,))
         
-        # !!! NEUTRON !!! #
+        # !!! XXX-NEUTRON-XXX !!! #
         # get port id if type is an interface
         #if classifier_mode == 'destinationIf':
             #port = self.neutron().show_port(self.properties[self.POLICY])
             #LOG.debug("Port=%s" % port)
+        # !!! XXX-NEUTRON-XXX !!! #
             
         # prepare message to be sent to neutron
         neutron_msg = {'type': self.properties[self.TYPE],
                        'policy': self.properties[self.POLICY]}
         
+        # !!! XXX-NEUTRON-XXX !!! #
         #resp = self.neutron().create_qos_classifier({'qos_classifier': neutron_msg})
-        LOG.info("Neutron message=%s" % (neutron_msg,))
+        #LOG.info("Neutron message=%s" % (neutron_msg,))
         #self.resource_id_set(resp.get('qos_classifier').get('id'))
+        # !!! XXX-NEUTRON-XXX !!! #
         self.resource_id_set(random.randint(0,10000000000))
         LOG.info("qos_classifier succesfully created: resource ID=%s" %
                     (self.resource_id,))
@@ -296,7 +305,7 @@ class qos_classifier(neutron.NeutronResource):
         '''
         Delete an existing qos_classifier resource
         '''
-        # !!! NEUTRON !!! #
+        # !!! XXX-NEUTRON-XXX !!! #
         #if self.resource_id is not None:
             #try:
                 #client.delete_qos_classifier(self.resource_id)
@@ -305,6 +314,7 @@ class qos_classifier(neutron.NeutronResource):
                 #self.client_plugin('neutron').ignore_not_found(ex)
             #else:
                 #return self._delete_task()
+        # !!! XXX-NEUTRON-XXX !!! #
         pass;
 
     # --- AUXILIARY FUNCTIONS --- #

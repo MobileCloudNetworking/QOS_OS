@@ -60,15 +60,18 @@ class qos_classifier(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
     policy = sa.Column(sa.String(64),
              nullable=False)
 
+# 
 class qosDBManager(base_db.CommonDbMixin):
     """qos database class using SQLAlchemy models."""
 
+    # prepare a disctionary with the associated params
     def _make_qos_dict(self, qos, fields=None):
         res = {'id': qos['id'],
                'tenant_id': qos['tenant_id'],
                'qos_param': qos['qos_param']}
         return self._fields(res, fields)
 
+    
     def _get_resource(self, context, model, id_):
         try:
             return self._get_by_id(context, model, id_)
@@ -101,7 +104,8 @@ class qosDBManager(base_db.CommonDbMixin):
     def get_qos(self, context, id_, fields=None):
         qos_db = self._get_resource(context, qos, id_)
         return self._make_qos_dict(qos_db, fields)
-
+    
+    # return the qos collection
     def get_qoss(self, context, filters=None, fields=None):
         return self._get_collection(context, qos,
                                     self._make_qos_dict,

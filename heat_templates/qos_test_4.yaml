@@ -16,6 +16,9 @@ resources:
   qos1:
     type: OS::Neutron::qos
     properties:
+      qos_parameter: { get resource: qos_param1 }
+      qos_parameter: { get_resource: qos_param3 }
+      qos_parameter: { get_resource: qos_param4 }
       
   qos2:
     type: OS::Neutron::qos
@@ -36,11 +39,18 @@ resources:
       policy: 2 ms
       qos_classifier: { get_resource: qos_classifier_1 }
       
-  qos_param2:
+  qos_param3:
     type: OS::Neutron::qos_param
     properties:
       type: Delay
       policy: 4 ms
+      
+  qos_param4:
+     type: OS::Neutron::qos_param
+    properties:
+      type: Delay
+      policy: 4 ms
+      qos_classifier: { get_resource: qos_classifier_3 }
       
   qos_classifier_1:
     type: OS::Neutron::qos_classifier
@@ -53,6 +63,12 @@ resources:
     properties:
       type: L3_protocol
       policy: TCP
+      
+  qos_classifier_3:
+     type: OS::Neutron::qos_classifier
+     properties:
+        type: destinationIf
+        policy: { get_resource: host2_port }
 
   test_subnet_1:
     type: OS::Neutron::Subnet

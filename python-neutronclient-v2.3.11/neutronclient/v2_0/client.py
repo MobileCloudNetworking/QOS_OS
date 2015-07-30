@@ -1527,6 +1527,7 @@ class Client(ClientBase):
         """Delete the specified packet filter."""
         return self.delete(self.packet_filter_path % packet_filter_id)
 
+	# set of functions added by will
     # new APIs for QoS
     @APIParamsCall
     def create_qos(self, body=None):

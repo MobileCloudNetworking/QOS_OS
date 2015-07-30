@@ -40,7 +40,6 @@ class qos_paramInternalError(qexception.NeutronException):
     """Qos_param exception for all the error types."""
     message = _("%(internal)s: Internal error.")
 
-
 class qos_paramNotFound(qexception.NotFound):
     message = _("qos_param %(qos_param_id)s not found")
     
@@ -49,12 +48,11 @@ class qos_classifierInternalError(qexception.NeutronException):
     """Qos_classifier exception for all the error types."""
     message = _("%(internal)s: Internal error.")
 
-
 class qos_classifierNotFound(qexception.NotFound):
     message = _("qos_classifier %(qos_classifier_id)s not found")
 
-
-RESOURCE_ATTRIBUTE_MAP = {
+# define resource attribute map 4 every type of resource
+RESOURCE_ATTRIBUTE_MAP_QOS = {
 	qos: {
         'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
@@ -65,7 +63,10 @@ RESOURCE_ATTRIBUTE_MAP = {
         'qos_param': {'allow_post': True, 'allow_put': True,
                    'validate': {'type:string': None},
                    'is_visible': True, 'default': ''}
-    },
+    }
+}
+    
+RESOURCE_ATTRIBUTE_MAP_QOS_PARAM = {
     qos_param: {
 		'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
@@ -82,7 +83,10 @@ RESOURCE_ATTRIBUTE_MAP = {
         'qos_classifier': {'allow_post': True, 'allow_put': True,
                    'validate': {'type:string': None},
                    'is_visible': True, 'default': ''}
-    },
+    }
+}
+
+RESOURCE_ATTRIBUTE_MAP_QOS_CLASSIFIER = {
     qos_classifier: {
 		'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
@@ -98,7 +102,6 @@ RESOURCE_ATTRIBUTE_MAP = {
                    'is_visible': True, 'default': ''}
     }
 }
-
 
 class qos(extensions.ExtensionDescriptor):
 
@@ -123,17 +126,93 @@ class qos(extensions.ExtensionDescriptor):
         return "2015-07-17T90:00:00-00:00"
 
     def get_extended_resources(self, version):
-        return RESOURCE_ATTRIBUTE_MAP if version == "2.0" else {}
+        return RESOURCE_ATTRIBUTE_MAP_QOS if version == "2.0" else {}
 
     @classmethod
     def get_resources(cls):
         plural_mappings = resource_helper.build_plural_mappings(
-            {}, RESOURCE_ATTRIBUTE_MAP)
+            {}, RESOURCE_ATTRIBUTE_MAP_QOS)
         attr.PLURALS.update(plural_mappings)
         return resource_helper.build_resource_info(plural_mappings,
-                                                   RESOURCE_ATTRIBUTE_MAP,
+                                                   RESOURCE_ATTRIBUTE_MAP_QOS,
                                                    None)
 
     def update_attributes_map(self, attributes):
         super(qos, self).update_attributes_map(
-            attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP)
+            attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP_QOS)
+
+class qos_param(extensions.ExtensionDescriptor):
+
+    @classmethod
+    def get_name(cls):
+        return "qos_param service"
+
+    @classmethod
+    def get_alias(cls):
+        return "qos_param"
+
+    @classmethod
+    def get_description(cls):
+        return "Extension for Quality Of Service Parameters"
+
+    @classmethod
+    def get_namespace(cls):
+        return "http://wiki.openstack.org/Neutron/qos_param/API_1.0"
+
+    @classmethod
+    def get_updated(cls):
+        return "2015-07-17T90:00:00-00:00"
+
+    def get_extended_resources(self, version):
+        return RESOURCE_ATTRIBUTE_MAP_QOS_PARAM if version == "2.0" else {}
+
+    @classmethod
+    def get_resources(cls):
+        plural_mappings = resource_helper.build_plural_mappings(
+            {}, RESOURCE_ATTRIBUTE_MAP_QOS_PARAM)
+        attr.PLURALS.update(plural_mappings)
+        return resource_helper.build_resource_info(plural_mappings,
+                                                   RESOURCE_ATTRIBUTE_MAP_QOS_PARAM,
+                                                   None)
+
+    def update_attributes_map(self, attributes):
+        super(qos_param, self).update_attributes_map(
+            attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP_QOS_PARAM)
+
+class qos_classifier(extensions.ExtensionDescriptor):
+
+    @classmethod
+    def get_name(cls):
+        return "qos service"
+
+    @classmethod
+    def get_alias(cls):
+        return "qos"
+
+    @classmethod
+    def get_description(cls):
+        return "Extension for Quality Of Service"
+
+    @classmethod
+    def get_namespace(cls):
+        return "http://wiki.openstack.org/Neutron/qos/API_1.0"
+
+    @classmethod
+    def get_updated(cls):
+        return "2015-07-17T90:00:00-00:00"
+
+    def get_extended_resources(self, version):
+        return RESOURCE_ATTRIBUTE_MAP_QOS_CLASSIFIER if version == "2.0" else {}
+
+    @classmethod
+    def get_resources(cls):
+        plural_mappings = resource_helper.build_plural_mappings(
+            {}, RESOURCE_ATTRIBUTE_MAP_QOS_CLASSIFIER)
+        attr.PLURALS.update(plural_mappings)
+        return resource_helper.build_resource_info(plural_mappings,
+                                                   RESOURCE_ATTRIBUTE_MAP_QOS_CLASSIFIER,
+                                                   None)
+
+    def update_attributes_map(self, attributes):
+        super(qos, self).update_attributes_map(
+            attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP_QOS_CLASSIFIER)

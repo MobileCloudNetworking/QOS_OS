@@ -23,3 +23,25 @@ Questo file contiene la descrizione dei file contenuti all'interno del repositor
 	
 - Heat templates v03.pdf
 	Specifiche sviluppo QoS in Heat
+
+- heat_qos_check_syntax_qos.sh
+	script che controlla la corretta sintassi del file qos_easy.py
+	
+- neutron_qos_check_syntax.sh
+	script che controlla la corretta sintassi dei file modificati fino al 30-07-2015 
+	
+- connect_to_VM.sh
+	si connette in automatico alla macchina remota
+	
+- re_initialize_heat_db.sh
+	svuota e reinizializza il db di heat, utile in caso di stack dispettosi 
+	che allocano risorse alla "cazzo di cane" che non si riesce a 
+	disallocare (da usare su macchina remota)
+	
+- send_qos_source_and_templates
+	invia alla macchina remota il file qos_easy.py e l'intera cartella contenente
+	i template su questa macchina:
+	/home/marco/openstack/heat_templates/
+	
+- send_neutron_qos.sh
+	invia i file fino ad ora creati/modificati per il lato Neutron fino al 30-07-2015 

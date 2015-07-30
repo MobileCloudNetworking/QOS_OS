@@ -1834,7 +1834,8 @@ class IdentifierMap(BASEV2, HasTenant):
     csr_tunnel_id = sa.Column(sa.Integer, nullable=False)
     csr_ike_policy_id = sa.Column(sa.Integer, nullable=False)
     csr_ipsec_policy_id = sa.Column(sa.Integer, nullable=False)
-    
+
+# set of classes added by will
 #neutron/db/qos_db.py
 class qos(BASEV2, HasId, HasTenant):
     __tablename__ = 'qos'
@@ -1862,7 +1863,6 @@ class qos_classifier(BASEV2, HasId, HasTenant):
              nullable=False)
     policy = sa.Column(sa.String(64),
              nullable=False)
-
 
 def get_metadata():
     return BASEV2.metadata
