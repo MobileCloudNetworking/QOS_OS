@@ -53,7 +53,7 @@ class qos_classifierNotFound(qexception.NotFound):
 
 # define resource attribute map four every type of resource
 RESOURCE_ATTRIBUTE_MAP_QOS = {
-	qos: {
+    'qos': {
         'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},
@@ -67,7 +67,7 @@ RESOURCE_ATTRIBUTE_MAP_QOS = {
 }
     
 RESOURCE_ATTRIBUTE_MAP_QOS_PARAM = {
-    qos_param: {
+    'qos_param': {
 		'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},
@@ -87,7 +87,7 @@ RESOURCE_ATTRIBUTE_MAP_QOS_PARAM = {
 }
 
 RESOURCE_ATTRIBUTE_MAP_QOS_CLASSIFIER = {
-    qos_classifier: {
+    'qos_classifier': {
 		'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},
@@ -183,15 +183,15 @@ class qos_classifier(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_name(cls):
-        return "qos service"
+        return "qos_classifier service"
 
     @classmethod
     def get_alias(cls):
-        return "qos"
+        return "qos_classifier"
 
     @classmethod
     def get_description(cls):
-        return "Extension for Quality Of Service"
+        return "Extension for Quality Of Service Classifiers"
 
     @classmethod
     def get_namespace(cls):
