@@ -51,7 +51,7 @@ class qos_classifierInternalError(qexception.NeutronException):
 class qos_classifierNotFound(qexception.NotFound):
     message = _("qos_classifier %(qos_classifier_id)s not found")
 
-# define resource attribute map 4 every type of resource
+# define resource attribute map four every type of resource
 RESOURCE_ATTRIBUTE_MAP_QOS = {
 	qos: {
         'id': {'allow_post': False, 'allow_put': False,
