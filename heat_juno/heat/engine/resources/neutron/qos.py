@@ -151,7 +151,7 @@ class qos_param(neutron.NeutronResource):
             _('Threshold not to exceeded for the selected type.'),
             required=True,
             update_allowed=True,
-        ),  
+        ),
         QOS_CLASSIFIER: properties.Schema(
             properties.Schema.STRING,
             _('A qos_classifier if required.'),

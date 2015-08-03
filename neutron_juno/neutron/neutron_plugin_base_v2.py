@@ -360,8 +360,8 @@ class NeutronPluginBaseV2(object):
         """
         pass
 
-	# follow abstract methods regards qos, qos_param and qos_classifier
-	# by Marco Del Seppia
+    # follow abstract methods regarding qos, qos_param and qos_classifier
+    # by Marco Del Seppia
     @abc.abstractmethod
     def create_qos_classifier(self, context, qos_classifier):
         """Create a qos.
