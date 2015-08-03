@@ -423,6 +423,12 @@ class Client(ClientBase):
 
     l2vlinks_path = "/l2vlinks"
     l2vlink_path = "/l2vlinks/%s"
+    qoss_path = "/qoss"
+    qos_path = "/qos/%s"
+    qos_params_path = "/qos_params"
+    qos_param_path = "/qos_param/%s"
+    qos_classifiers_path = "/qos_classifiers"
+    qos_classifier_path = "/qos_classifier/%s"
 
     # API has no way to report plurals, so we have to hard code them
     EXTED_PLURALS = {'routers': 'router',
@@ -1529,33 +1535,86 @@ class Client(ClientBase):
 
     # new APIs for QoS
     @APIParamsCall
+    def list_qoss(self, retrieve_all=True, **_params):
+        """Fetches a list of all QoSs for a tenant."""
+        # Pass filters in "params" argument to do_request
+        return self.list('qoss', self.qoss_path, retrieve_all,
+                         **_params)
+
+    @APIParamsCall
+    def show_qos(self, qos, **_params):
+        """Fetches information of a certain QoS."""
+        return self.get(self.qos_path % (qos), params=_params)
+
+    @APIParamsCall
     def create_qos(self, body=None):
         """Creates a new QoS."""
-        return self.post(self.qos_path, body=body)
+        return self.post(self.qoss_path, body=body)
+
+    @APIParamsCall
+    def update_qos(self, qos, body=None):
+        """Updates a QoS."""
+        return self.put(self.qos_path % (qos), body=body)
 
     @APIParamsCall
     def delete_qos(self, qos_id):
-        """Deletes the specified qos."""
+        """Deletes the specified QoS."""
         return self.delete(self.qos_path % qos_id)
 
     # new APIs for QoS_param
     @APIParamsCall
+    def list_qos_params(self, retrieve_all=True, **_params):
+        """Fetches a list of all QoS params for a tenant."""
+        # Pass filters in "params" argument to do_request
+        return self.list('qos_parameters', self.qos_params_path, retrieve_all,
+                         **_params)
+
+    @APIParamsCall
+    def show_qos_param(self, qos_param_id, **_params):
+        """Fetches information of a certain QoS param."""
+        return self.get(self.qos_param_path % (qos_param_id), params=_params)
+
+    @APIParamsCall
     def create_qos_param(self, body=None):
-        """Creates a new QoS."""
-        return self.post(self.qos_param_path, body=body)
+        """Creates a new QoS param."""
+        return self.post(self.qos_params_path, body=body)
+
+    @APIParamsCall
+    def update_qos_param(self, qos_param_id, body=None):
+        """Updates a QoS param."""
+        return self.put(self.qos_param_path % (qos_param_id), body=body)
 
     @APIParamsCall
     def delete_qos_param(self, qos_param_id):
-        """Deletes the specified qos_param."""
-        return self.delete(self.qos_param_path % qos_param_id)
+        """Deletes the specified QoS param."""
+        return self.delete(self.qos_param_path % (qos_param_id))
 
     # new APIs for QoS_classifier
     @APIParamsCall
+    def list_qos_classifiers(self, retrieve_all=True, **_params):
+        """Fetches a list of all QoS classifiers for a tenant."""
+        # Pass filters in "params" argument to do_request
+        return self.list('qos_classifiers', self.qos_classifiers_path,
+                         retrieve_all, **_params)
+
+    @APIParamsCall
+    def show_qos_classifier(self, qos_classifier_id, **_params):
+        """Fetches information of a certain network."""
+        return self.get(self.qos_classifier_path % (qos_classifier_id),
+                        params=_params)
+
+    @APIParamsCall
     def create_qos_classifier(self, body=None):
-        """Creates a new QoS."""
-        return self.post(self.qos_classifier_path, body=body)
+        """Creates a new QoS classifier."""
+        return self.post(self.qos_classifiers_path, body=body)
+
+    @APIParamsCall
+    def update_qos_classifier(self, qos_classifier_id, body=None):
+        """Updates a port."""
+        return self.put(self.qos_classifier_path % (qos_classifier_id),
+                        body=body)
 
     @APIParamsCall
     def delete_qos_classifier(self, qos_classifier_id):
-        """Deletes the specified qos_classifier."""
-        return self.delete(self.qos_classifier_path % qos_classifier_id)
+        """Deletes the specified QoS classifier."""
+        return self.delete(self.qos_classifier_path % (qos_classifier_id))
