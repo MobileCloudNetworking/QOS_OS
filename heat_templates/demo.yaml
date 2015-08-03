@@ -1,0 +1,107 @@
+heat_template_version: 2013-05-23
+
+description: >
+  This template creates 2 hosts connected to a private network. UDP and TCP traffic between VM1 and VM2 must be exchanged with different rate-limits.
+
+resources:
+
+  test_network_1:
+    type: OS::Neutron::Net
+    properties:
+      name: test_network_1
+
+  qos1:
+    type: OS::Neutron::qos
+    properties:
+      qos_parameter: { get_resource: qos_param1 }
+
+  qos2:
+    type: OS::Neutron::qos
+    properties:
+      qos_parameter: { get_resource: qos_param2 }
+
+  qos_param1:
+    type: OS::Neutron::qos_param
+    properties:
+      type: Rate-limit
+      policy: 10000 kbps
+      qos_classifier: { get_resource: [qos_classifier_1, qos_classifier_2] }
+
+   qos_param2:
+    type: OS::Neutron::qos_param
+    properties:
+      type: Rate-limit
+      policy: 20000 kbps
+      qos_classifier: { get_resource: [qos_classifier_1, qos_classifier_3] }
+
+  qos_classifier_1:
+    type: OS::Neutron::qos_classifier
+    properties:
+      type: destinationIf
+      policy: { get_resource: host2_port }
+
+  qos_classifier_2:
+    type: OS::Neutron::qos_classifier
+    properties:
+      type: L3_protocol
+      policy: TCP
+
+  qos_classifier_3:
+    type: OS::Neutron::qos_classifier
+    properties:
+      type: L3_protocol
+      policy: UDP
+
+  test_subnet_1:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: test_network_1 }
+      name: test_subnet_1
+      cidr: 5.0.0.0/24
+      gateway_ip: 5.0.0.1
+      allocation_pools:
+        - start: 5.0.0.100
+          end: 5.0.0.200
+
+  host1:
+    type: OS::Nova::Server
+    properties:
+      name: host1
+      image: cirros-0.3.2-x86_64-uec
+      flavor: m1.tiny
+      networks:
+        - port: { get_resource: host1_port }
+
+  host2:
+    type: OS::Nova::Server
+    properties:
+      name: host1
+      image: cirros-0.3.2-x86_64-uec
+      flavor: m1.tiny
+      networks:
+        - port: { get_resource: host2_port }
+
+  host1_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: test_network_1 }
+      fixed_ips:
+        - subnet_id: { get_resource: test_subnet_1 }
+      qos_id: { get_resource: [qos1,qos2] }
+
+  host2_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: test_network_1 }
+      fixed_ips:
+        - subnet_id: { get_resource: test_subnet_1 }
+
+  router:
+    type: OS::Neutron::Router
+
+  router_interface1:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet_id: { get_resource: test_subnet_1 }
+
