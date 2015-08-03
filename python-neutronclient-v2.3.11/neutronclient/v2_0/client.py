@@ -1566,7 +1566,7 @@ class Client(ClientBase):
     def list_qos_params(self, retrieve_all=True, **_params):
         """Fetches a list of all QoS params for a tenant."""
         # Pass filters in "params" argument to do_request
-        return self.list('qos_parameters', self.qos_params_path, retrieve_all,
+        return self.list('qos_params', self.qos_params_path, retrieve_all,
                          **_params)
 
     @APIParamsCall
