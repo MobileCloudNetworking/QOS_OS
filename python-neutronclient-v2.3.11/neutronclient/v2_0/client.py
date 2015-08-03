@@ -1527,7 +1527,6 @@ class Client(ClientBase):
         """Delete the specified packet filter."""
         return self.delete(self.packet_filter_path % packet_filter_id)
 
-	# set of functions added by will
     # new APIs for QoS
     @APIParamsCall
     def create_qos(self, body=None):
@@ -1549,9 +1548,9 @@ class Client(ClientBase):
     def delete_qos_param(self, qos_param_id):
         """Deletes the specified qos_param."""
         return self.delete(self.qos_param_path % qos_param_id)
-    
+
     # new APIs for QoS_classifier
-    @APIParamsCall    
+    @APIParamsCall
     def create_qos_classifier(self, body=None):
         """Creates a new QoS."""
         return self.post(self.qos_classifier_path, body=body)
