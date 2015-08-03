@@ -51,6 +51,7 @@ class qos(neutron.NeutronResource):
         'qos_parameter',
     )
     
+    # XXX This seems useless, should be removed
     _param_keys = (
         QOS_PARAMETER,
     ) = (
@@ -72,7 +73,7 @@ class qos(neutron.NeutronResource):
             _('At least one qos_param.'),
             required=True,
             schema=properties.Schema(
-                properties.Schema.MAP,
+                properties.Schema.MAP,  # XXX shouldn't this be a simple STRING?
                 schema=_param_schema,
             ),
         ),
