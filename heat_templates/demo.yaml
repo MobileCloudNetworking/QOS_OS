@@ -88,7 +88,7 @@ resources:
       network_id: { get_resource: test_network_1 }
       fixed_ips:
         - subnet_id: { get_resource: test_subnet_1 }
-      qos_id: { get_resource: [qos1,qos2] }
+        - qos_id: [ get_resource: qos1, get_resource: qos2 ]
 
   host2_port:
     type: OS::Neutron::Port
