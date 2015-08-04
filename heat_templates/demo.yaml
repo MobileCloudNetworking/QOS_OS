@@ -1,10 +1,11 @@
-heat_template_version: 2013-05-23
+heat_template_version: 2014-10-16
 
 description: >
-  This template creates 2 hosts connected to a private network. UDP and TCP traffic between VM1 and VM2 must be exchanged with different rate-limits.
+    This template creates 2 hosts connected to a private network.
+    UDP and TCP traffic between VM1 and VM2 must be exchanged
+    with different rate-limits.
 
 resources:
-
   test_network_1:
     type: OS::Neutron::Net
     properties:
@@ -13,26 +14,26 @@ resources:
   qos1:
     type: OS::Neutron::qos
     properties:
-      qos_parameter: { get_resource: qos_param1 }
+      qos_parameters: { get_resource: qos_param1 }
 
   qos2:
     type: OS::Neutron::qos
     properties:
-      qos_parameter: { get_resource: qos_param2 }
+      qos_parameters: { get_resource: qos_param2 }
 
   qos_param1:
     type: OS::Neutron::qos_param
     properties:
       type: Rate-limit
       policy: 10000 kbps
-      qos_classifier: { get_resource: [qos_classifier_1, qos_classifier_2] }
+      qos_classifiers: { get_resource: [qos_classifier_1, qos_classifier_2] }
 
-   qos_param2:
+  qos_param2:
     type: OS::Neutron::qos_param
     properties:
       type: Rate-limit
       policy: 20000 kbps
-      qos_classifier: { get_resource: [qos_classifier_1, qos_classifier_3] }
+      qos_classifiers: { get_resource: [qos_classifier_1, qos_classifier_3] }
 
   qos_classifier_1:
     type: OS::Neutron::qos_classifier
@@ -104,4 +105,3 @@ resources:
     properties:
       router_id: { get_resource: router }
       subnet_id: { get_resource: test_subnet_1 }
-
