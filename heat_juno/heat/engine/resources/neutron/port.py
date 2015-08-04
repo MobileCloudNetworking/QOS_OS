@@ -25,7 +25,6 @@ LOG = logging.getLogger(__name__)
 
 class Port(neutron.NeutronResource):
 
-	# added one new property for qos
     PROPERTIES = (
         NETWORK_ID, NETWORK, NAME, VALUE_SPECS,
         ADMIN_STATE_UP, FIXED_IPS, MAC_ADDRESS,
@@ -169,15 +168,13 @@ class Port(neutron.NeutronResource):
             ],
             update_allowed=True
         ),
-        # New attribute made to hold a qos resource
-        # !!! COMMENTED BECAUSE NEUTRON DOESN'T SUPPORT THIS PROPERTY IN HIS MESSAGES !!!
-        #QOS_ID: properties.Schema(
-			#properties.Schema.LIST,
-			#_('One or more quality of service resource that can track this port'),
-			#default=[],
-			#required=False,
-			#update_allowed=True,
-		#),
+        QOS_ID: properties.Schema(
+            properties.Schema.LIST,
+            _('One or more QoS resource that can track this port'),
+            default=[],
+            required=False,
+            update_allowed=True,
+        ),
     }
 
     attributes_schema = {
