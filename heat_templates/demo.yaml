@@ -18,9 +18,7 @@ resources:
       name: test_subnet_1
       cidr: 5.0.0.0/24
       gateway_ip: 5.0.0.1
-      allocation_pools:
-        - start: 5.0.0.100
-        - end: 5.0.0.200
+      allocation_pools: [{"start": 5.0.0.100, "end": 5.0.0.200}]
 
   host1_port:
     type: OS::Neutron::Port
@@ -94,5 +92,5 @@ resources:
   qos_classifier2:
     type: OS::Neutron::qos_classifier
     properties:
-      type: l3_protocol
+      type: l3-protocol
       policy: udp

@@ -31,7 +31,7 @@ class qos(neutron.NeutronResource):
 
     properties_schema = {
         TYPE: properties.Schema(
-            properties.Schema.String,
+            properties.Schema.STRING,
             _('QoS type.'),
             required=True,
             update_allowed=True,
