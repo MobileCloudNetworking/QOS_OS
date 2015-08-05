@@ -32,6 +32,7 @@ LOG = logging.getLogger(__name__)
 class Qos(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
     """Represents a Qos object."""
     __tablename__ = 'qoss'
+
     type = sa.Column(sa.String(64), nullable=False)
     ingress_id = sa.Column(sa.String(36), nullable=False,
                            sa.ForeignKey('ports.id', ondelete="CASCADE"))
@@ -45,6 +46,7 @@ class Qos(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
 class QosParam(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
     """Represents a Qos parameter Object."""
     __tablename__ = 'qos_parameters'
+
     type = sa.Column(sa.String(64), nullable=False)
     policy = sa.Column(sa.String(64), nullable=False)
 
@@ -54,6 +56,7 @@ class QosParam(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
 class QosParamsListEntry(model_base.BASEV2, models_v2.HasId):
     """Represents a QoS parameter object contained by a QoS object"""
     __tablename__ = 'qos_params_list_entries'
+
     qos_id = sa.Column(sa.String(36), nullable=False,
                        sa.ForeignKey('qoss.id', ondelete="CASCADE"))
     qos_param_id = sa.Column(sa.String(36), nullable=False,
@@ -65,6 +68,7 @@ class QosParamsListEntry(model_base.BASEV2, models_v2.HasId):
 class QosClassifier(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
     """Represents a Qos classifier Object."""
     __tablename__ = 'qos_classifiers'
+
     type = sa.Column(sa.String(64), nullable=False)
     policy = sa.Column(sa.String(64), nullable=False)
 
@@ -74,6 +78,7 @@ class QosClassifier(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
 class QosClassifiersListEntry(model_base.BASEV2, models_v2.HasId):
     """Represents a QoS classifier object contained bt a QoS parameter object"""
     __tablename__ = 'qos_classifiers_list_entries'
+
     qos_param_id = sa.Column(sa.String(36), nullable=False,
                              sa.ForeignKey('qos_parameters.id',
                                            ondelete="CASCADE")

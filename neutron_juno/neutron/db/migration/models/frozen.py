@@ -1835,34 +1835,54 @@ class IdentifierMap(BASEV2, HasTenant):
     csr_ike_policy_id = sa.Column(sa.Integer, nullable=False)
     csr_ipsec_policy_id = sa.Column(sa.Integer, nullable=False)
 
-# set of classes added by will
-#neutron/db/qos_db.py
-class qos(BASEV2, HasId, HasTenant):
-    __tablename__ = 'qos'
 
-    qos_param = sa.Column(sa.String(64),
-                sa.ForeignKey('qos_param.id', ondelete="CASCADE"),
-                nullable=False)
-    
-#neutron/db/qos_db.py
-class qos_param(BASEV2, HasId, HasTenant):
-    __tablename__ = 'qos_param'
+#neutron-juno/neutron/db/qos_db.py
+class Qos(BASEV2, HasId, HasTenant):
+    __tablename__ = 'qoss'
 
-    param_type = sa.Column(sa.String(64),
-                 nullable=False)
-    policy = sa.Column(sa.String(64),
-                 nullable=False)
-    qos_classifier = sa.Column(sa.String(64),
-                     sa.ForeignKey('qos_calssifier.id', ondelete="CASCADE"))
-    
-#neutron/db/qos_db.py
-class qos_classifier(BASEV2, HasId, HasTenant):
-    __tablename__ = 'qos_classifier'
+    type = sa.Column(sa.String(64), nullable=False)
+    ingress_id = sa.Column(sa.String(36), nullable=False,
+                           sa.ForeignKey('ports.id', ondelete="CASCADE"))
+    egress_id = sa.Column(sa.String(36), nullable=False,
+                          sa.ForeignKey('ports.id', ondelete="CASCADE"))
+    net_id = sa.Column(sa.String(36), nullable=False,
+                       sa.ForeignKey('ports.id', ondelete="CASCADE"))
 
-    classifier_type = sa.Column(sa.String(64),
-             nullable=False)
-    policy = sa.Column(sa.String(64),
-             nullable=False)
+
+class QosParam(BASEV2, HasId, HasTenant):
+    __tablename__ = 'qos_parameters'
+
+    type = sa.Column(sa.String(64), nullable=False)
+    policy = sa.Column(sa.String(64), nullable=False)
+
+
+class QosParamsListEntry(BASEV2, HasId):
+    __tablename__ = 'qos_params_list_entries'
+
+    qos_id = sa.Column(sa.String(36), nullable=False,
+                       sa.ForeignKey('qoss.id', ondelete="CASCADE"))
+    qos_param_id = sa.Column(sa.String(36), nullable=False,
+                             sa.ForeignKey('qos_parameters.id',
+                                           ondelete="CASCADE")
+
+
+class QosClassifier(BASEV2, HasId, HasTenant):
+    __tablename__ = 'qos_classifiers'
+
+    type = sa.Column(sa.String(64), nullable=False)
+    policy = sa.Column(sa.String(64), nullable=False)
+
+
+class QosClassifiersListEntry(BASEV2, HasId):
+    __tablename__ = 'qos_classifiers_list_entries'
+
+    qos_param_id = sa.Column(sa.String(36), nullable=False,
+                             sa.ForeignKey('qos_parameters.id',
+                                           ondelete="CASCADE")
+    qos_classifier_id = sa.Column(sa.String(36), nullable=False,
+                                  sa.ForeignKey('qos_classifiers.id',
+                                                ondelete="CASCADE"))
+
 
 def get_metadata():
     return BASEV2.metadata
