@@ -40,28 +40,24 @@ class Qos(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
                           sa.ForeignKey('ports.id', ondelete="CASCADE"))
     net_id = sa.Column(sa.String(36), nullable=False,
                        sa.ForeignKey('ports.id', ondelete="CASCADE"))
+    qos_params = orm.relationship('QosQosParamAssociation',
+                                  backref='qoss',
+                                  cascade='all, delete-orphan')
 
 
 # DB table entry representing a QoS parameter resource
 class QosParam(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
     """Represents a Qos parameter Object."""
-    __tablename__ = 'qos_parameters'
+    __tablename__ = 'qos_params'
 
     type = sa.Column(sa.String(64), nullable=False)
     policy = sa.Column(sa.String(64), nullable=False)
-
-
-# DB table entry representing the relationship between a QoS resource and
-# a QoS parameter resource
-class QosParamsListEntry(model_base.BASEV2, models_v2.HasId):
-    """Represents a QoS parameter object contained by a QoS object"""
-    __tablename__ = 'qos_params_list_entries'
-
-    qos_id = sa.Column(sa.String(36), nullable=False,
-                       sa.ForeignKey('qoss.id', ondelete="CASCADE"))
-    qos_param_id = sa.Column(sa.String(36), nullable=False,
-                             sa.ForeignKey('qos_parameters.id',
-                                           ondelete="CASCADE")
+    qoss = orm.relationship('QosQosParamAssociation',
+                            backref='qos_params',
+                            cascade='all', lazy='joined')
+    qos_classifiers = orm.relationship('QosParamQosClassifierAssociation',
+                                        backref='qos_params',
+                                        cascade='all, delete-orphan')
 
 
 # DB table entry representing a QoS classifier resource
@@ -71,38 +67,47 @@ class QosClassifier(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
 
     type = sa.Column(sa.String(64), nullable=False)
     policy = sa.Column(sa.String(64), nullable=False)
+    qos_params = orm.relationship('QosParamQosClassifierAssociation',
+                                  backref='qos_classifiers',
+                                  cascade='all', lazy='joined')
+
+
+# DB table entry representing the relationship between a QoS resource and
+# a QoS parameter resource
+class QosQosParamAssociation(model_base.BASEV2):
+    """Represents a QoS parameter object contained by a QoS object"""
+    __tablename__ = 'qos_qos_param_association'
+
+    qos_id = sa.Column(sa.String(36), nullable=False,
+                       sa.ForeignKey('qoss.id', ondelete="CASCADE"),
+                       primary_key=True)
+    qos_param_id = sa.Column(sa.String(36), nullable=False,
+                             sa.ForeignKey('qos_params.id',
+                                           ondelete="CASCADE"),
+                             primary_key=True)
 
 
 # DB table entry representing the relationship between a QoS parameter
 # resource and a QoS classifier resource
-class QosClassifiersListEntry(model_base.BASEV2, models_v2.HasId):
+class QosParamQosClassifierAssociation(model_base.BASEV2):
     """Represents a QoS classifier object contained bt a QoS parameter object"""
-    __tablename__ = 'qos_classifiers_list_entries'
+    __tablename__ = 'qos_param_qos_classifier_association'
 
     qos_param_id = sa.Column(sa.String(36), nullable=False,
-                             sa.ForeignKey('qos_parameters.id',
-                                           ondelete="CASCADE")
+                             sa.ForeignKey('qos_params.id',
+                                           ondelete="CASCADE"),
+                             primary_key=True)
     qos_classifier_id = sa.Column(sa.String(36), nullable=False,
                                   sa.ForeignKey('qos_classifiers.id',
-                                                ondelete="CASCADE"))
+                                                ondelete="CASCADE"),
+                                  primary_key=True)
 
 
-# Utility class to manipulate the qoss table
+# Utility class to manipulate the QoS DB tables
 class QosDBManager(base_db.CommonDbMixin):
-    """Qos database class using SQLAlchemy models."""
+    """QoS database classes using SQLAlchemy models."""
 
-    # prepare a disctionary with the associated params
-    def _make_qos_dict(self, qos, fields=None):
-        res = {'id': qos['id'],
-               'tenant_id': qos['tenant_id'],
-               'type': qos['type'],
-               'ingress_id': qos['ingress_id'],
-               'egress_id': qos['egress_id'],
-               'net_id': qos['net_id']}
-        return self._fields(res, fields)
-
-    
-    def _get_resource(self, context, model, id_):
+    def _get_qos(self, context, model, id_):
         try:
             return self._get_by_id(context, model, id_)
         except exc.NoResultFound:
@@ -111,6 +116,52 @@ class QosDBManager(base_db.CommonDbMixin):
                     raise neutron.extensions.qos.QosNotFound(id=id_)
                 ctx.reraise = True
 
+    def _get_qos_param(self, context, model, id_):
+        try:
+            return self._get_by_id(context, model, id_)
+        except exc.NoResultFound:
+            with excutils.save_and_reraise_exception(reraise=False) as ctx:
+                if issubclass(model, QosParam):
+                    raise neutron.extensions.qos.QosParamNotFound(id=id_)
+                ctx.reraise = True
+
+    def _get_qos_classifier(self, context, model, id_):
+        try:
+            return self._get_by_id(context, model, id_)
+        except exc.NoResultFound:
+            with excutils.save_and_reraise_exception(reraise=False) as ctx:
+                if issubclass(model, QosClassifier):
+                    raise neutron.extensions.qos.QosClassifierNotFound(id=id_)
+                ctx.reraise = True
+
+    def _make_qos_dict(self, row, fields=None):
+        qos_params = [x['id'] for x in row['qos_params']]
+        res = {'id': row['id'],
+               'tenant_id': row['tenant_id'],
+               'type': row['type'],
+               'ingress_id': row['ingress_id'],
+               'egress_id': row['egress_id'],
+               'net_id': row['net_id'],
+               'qos_params': qos_params}
+        return self._fields(res, fields)
+
+    def _make_qos_param_dict(self, qos_param, fields=None):
+        qos_classifiers = [x['id'] for x in row['qos_classifiers']]
+        res = {'id': qos_param['id'],
+               'tenant_id': qos_param['tenant_id'],
+               'type': qos_param['type'],
+               'policy': qos_param['policy'],
+               'qos_classifiers': qos_classifiers}
+        return self._fields(res, fields)
+
+    def _make_qos_classifier_dict(self, qos_classifier, fields=None):
+        res = {'id': qos_classifier['id'],
+               'tenant_id': qos_classifier['tenant_id'],
+               'type': qos_classifier['type'],
+               'policy': qos_classifier['policy']}
+        return self._fields(res, fields)
+
+    # QoS
     def create_qos(self, context, qos_value):
         with context.session.begin(subtransactions=True):
             qos_db = Qos(id=uuidutils.generate_uuid(),
@@ -120,76 +171,87 @@ class QosDBManager(base_db.CommonDbMixin):
                          egress_id=qos_value.get('egress_id'),
                          net_id=qos_value.get('net_id'))
             context.session.add(qos_db)
-            #qos_param=qos_value.get('qos_param')
+
+            qos_param_ids = qos_value.get('qos_params')
+            with context.session.begin(subtransactions=True):
+                qos_db.qos_params = []
+                if qos_param_ids:
+                    for qpid in qos_param_ids:
+                        qry = context.session.query(QosQosParamAssociation)
+                        assoc = qry.filter_by(qos_id=qos_db['id'],
+                                              qos_param_id=qpid).first()
+                        if assoc:
+                            LOG.info(_("Association between %s and %s already exists") % (qos_id, qos_param_id))
+                            continue
+
+                        assoc = QosQosParamAssociation(qos_id=qos_db['id'],
+                                                       qos_param_id=qpid)
+                        qos_db.qos_params.append(assoc)
+
         return self._make_qos_dict(qos_db)
 
     def update_qos(self, context, id_, qos):
         with context.session.begin(subtransactions=True):
-            qos_db = self._get_resource(context, qos, id_)
+            qos_db = self._get_qos(context, qos, id_)
             if qos:
                 qos_db.update(qos)
         return self._make_qos_dict(qos_db)
 
     def delete_qos(self, context, id_):
         with context.session.begin(subtransactions=True):
-            qos_db = self._get_resource(context, Qos, id_)
+            qos_db = self._get_qos(context, Qos, id_)
             context.session.delete(qos_db)
 
     def get_qos(self, context, id_, fields=None):
-        qos_db = self._get_resource(context, Qos, id_)
+        qos_db = self._get_qos(context, Qos, id_)
         return self._make_qos_dict(qos_db, fields)
     
-    # return all the Qos entries
     def get_qoss(self, context, filters=None, fields=None):
         return self._get_collection(context, Qos,
                                     self._make_qos_dict,
                                     filters=filters, fields=fields)
 
-
-# Utility class to manipulate the qos_parameters table
-class QosParamDBManager(base_db.CommonDbMixin):
-    """QosParam database class using SQLAlchemy models."""
-
-    def _make_qos_param_dict(self, qos_param, fields=None):
-        res = {'id': qos_param['id'],
-               'tenant_id': qos_param['tenant_id'],
-               'type': qos_param['type'],
-               'policy':qos_param['policy']}
-        return self._fields(res, fields)
-
-    def _get_resource(self, context, model, id_):
-        try:
-            return self._get_by_id(context, model, id_)
-        except exc.NoResultFound:
-            with excutils.save_and_reraise_exception(reraise=False) as ctx:
-                if issubclass(model, QosParam):
-                    raise neutron.extensions.qos.QosParamNotFound(id=id_)
-                ctx.reraise = True
-
+    # QoS Param
     def create_qos_param(self, context, qos_param):
         with context.session.begin(subtransactions=True):
-            qos_param_db = QosParam(id=uuidutils.generate_uuid(),
+            row = QosParam(id=uuidutils.generate_uuid(),
                                     tenant_id=qos_param.get('tenant_id'),
                                     type=qos_param.get('type'),
                                     policy=qos_param.get('policy'))
-            context.session.add(qos_param_db)
-            #qos_classifier=qos_param.get('qos_classifier')
+            context.session.add(row)
+
+            qos_classifiers_ids = qos_value.get('qos_classifiers')
+            with context.session.begin(subtransactions=True):
+                row.qos_params = []
+                if qos_classifiers_ids:
+                    for qcid in qos_classifiers_ids:
+                        qry = context.session.query(QosParamQosClassifierAssociation)
+                        assoc = qry.filter_by(qos_param_id=row['id'],
+                                              qos_classifier_id=qcid).first()
+                        if assoc:
+                            LOG.info(_("Association between %s and %s already exists") % (qos_param_id, qos_classifier_id))
+                            continue
+
+                        assoc = QosParamQosClassifierAssociation(qos_param_id=row['id'],
+                                                                 qos_classifier_id=qcid)
+                        row.qos_params.append(assoc)
+
         return self._make_qos_param_dict(qos_param_db)
 
     def update_qos_param(self, context, id_, qos_param):
         with context.session.begin(subtransactions=True):
-            qos_param_db = self._get_resource(context, qos_param, id_)
+            qos_param_db = self._get_qos_param(context, qos_param, id_)
             if qos_param:
                 qos_param_db.update(qos_param)
         return self._make_qos_param_dict(qos_param_db)
 
     def delete_qos_param(self, context, id_):
         with context.session.begin(subtransactions=True):
-            qos_param_db = self._get_resource(context, QosParam, id_)
+            qos_param_db = self._get_qos_param(context, QosParam, id_)
             context.session.delete(qos_param_db)
 
     def get_qos_param(self, context, id_, fields=None):
-        qos_param_db = self._get_resource(context, QosParam, id_)
+        qos_param_db = self._get_qos_param(context, QosParam, id_)
         return self._make_qos_param_dict(qos_param_db, fields)
 
     def get_qos_params(self, context, filters=None, fields=None):
@@ -197,76 +259,7 @@ class QosParamDBManager(base_db.CommonDbMixin):
                                     self._make_qos_param_dict,
                                     filters=filters, fields=fields)
 
-
-# Utility class to manipulate the qos_params_list_entries table
-class QosParamsListEntryDBManager(base_db.CommonDbMixin):
-    """QosParamsListEntry database class using SQLAlchemy models."""
-
-    def _make_row_dict(self, row, fields=None):
-        res = {'id': row['id'],
-               'qos_id': row['qos_id'],
-               'qos_param_id': row['qos_param_id']}
-        return self._fields(res, fields)
-
-    def _get_resource(self, context, row, id_):
-        try:
-            return self._get_by_id(context, row, id_)
-        except exc.NoResultFound:
-            with excutils.save_and_reraise_exception(reraise=False) as ctx:
-                if issubclass(row, QosParamsListEntry):
-                    raise neutron.extensions.qos.QosParamsListEntryNotFound(id=id_)
-                ctx.reraise = True
-
-    def create_qos_params_list_entry(self, context, value):
-        with context.session.begin(subtransactions=True):
-            row = QosParamsListEntry(id=uuidutils.generate_uuid(),
-                                     qos_id=value.get('qos_id'),
-                                     qos_param_id=value.get('qos_param_id'))
-            context.session.add(row)
-        return self._make_row_dict(row)
-
-    def update_qos_params_list_entry(self, context, id_, value):
-        with context.session.begin(subtransactions=True):
-            row = self._get_resource(context, value, id_)
-            if row:
-                row.update(value)
-        return self._make_row_dict(row)
-
-    def delete_qos_params_list_entry(self, context, id_):
-        with context.session.begin(subtransactions=True):
-            row = self._get_resource(context, QosParamsListEntry, id_)
-            context.session.delete(row)
-
-    def get_qos_params_list_entry(self, context, id_, fields=None):
-        row = self._get_resource(context, QosParamsListEntry, id_)
-        return self._make_row_dict(row, fields)
-
-    def get_qos_params_list_entries(self, context, filters=None, fields=None):
-        return self._get_collection(context, QosParamsListEntry,
-                                    self._make_row_dict,
-                                    filters=filters, fields=fields)
-
-
-# Utility class to manipulate the qos_classifiers table
-class QosClassifierDBManager(base_db.CommonDbMixin):
-    """QosClassifier database class using SQLAlchemy models."""
-
-    def _make_qos_classifier_dict(self, qos_classifier, fields=None):
-        res = {'id': qos_classifier['id'],
-               'tenant_id': qos_classifier['tenant_id'],
-               'type': qos_classifier['type'],
-               'policy': qos_classifier['policy']}
-        return self._fields(res, fields)
-
-    def _get_resource(self, context, model, id_):
-        try:
-            return self._get_by_id(context, model, id_)
-        except exc.NoResultFound:
-            with excutils.save_and_reraise_exception(reraise=False) as ctx:
-                if issubclass(model, QosClassifier):
-                    raise neutron.extensions.qos.QosClassifierNotFound(id=id_)
-                ctx.reraise = True
-
+    # QoS Classifier
     def create_qos_classifier(self, context, qos_classifier):
         with context.session.begin(subtransactions=True):
             qos_classifier_db = QosClassifier(id=uuidutils.generate_uuid(),
@@ -278,70 +271,21 @@ class QosClassifierDBManager(base_db.CommonDbMixin):
 
     def update_qos_classifier(self, context, id_, qos_classifier):
         with context.session.begin(subtransactions=True):
-            qos_classifier_db = self._get_resource(context, qos_classifier, id_)
+            qos_classifier_db = self._get_qos_classifier(context, qos_classifier, id_)
             if qos_classifier:
                 qos_classifier_db.update(qos_classifier)
         return self._make_qos_classifier_dict(qos_classifier_db)
 
     def delete_qos_classifier(self, context, id_):
         with context.session.begin(subtransactions=True):
-            qos_classifier_db = self._get_resource(context, QosClassifier, id_)
+            qos_classifier_db = self._get_qos_classifier(context, QosClassifier, id_)
             context.session.delete(qos_classifier_db)
 
     def get_qos_classifier(self, context, id_, fields=None):
-        qos_classifier_db = self._get_resource(context, QosClassifier, id_)
+        qos_classifier_db = self._get_qos_classifier(context, QosClassifier, id_)
         return self._make_qos_classifier_dict(qos_classifier_db, fields)
 
     def get_qos_classifiers(self, context, filters=None, fields=None):
         return self._get_collection(context, QosClassifier,
                                     self._make_qos_classifier_dict,
-                                    filters=filters, fields=fields)
-
-
-# Utility class to manipulate the qos_classifiers_list_entries table
-class QosClassifiersListEntryDBManager(base_db.CommonDbMixin):
-    """QosClassifiersListEntry database class using SQLAlchemy models."""
-
-    def _make_row_dict(self, row, fields=None):
-        res = {'id': row['id'],
-               'qos_param_id': row['qos_param_id']}
-               'qos_classifier_id': row['qos_classifier_id'],
-        return self._fields(res, fields)
-
-    def _get_resource(self, context, row, id_):
-        try:
-            return self._get_by_id(context, row, id_)
-        except exc.NoResultFound:
-            with excutils.save_and_reraise_exception(reraise=False) as ctx:
-                if issubclass(row, QosClassifiersListEntry):
-                    raise neutron.extensions.qos.QosClassifiersListEntryNotFound(id=id_)
-                ctx.reraise = True
-
-    def create_qos_classifiers_list_entry(self, context, value):
-        with context.session.begin(subtransactions=True):
-            row = QosClassifiersListEntry(id=uuidutils.generate_uuid(),
-                                          qos_param_id=value.get('qos_param_id')
-                                          qos_classifier_id=value.get('qos_classifier_id'))
-            context.session.add(row)
-        return self._make_row_dict(row)
-
-    def update_qos_classifiers_list_entry(self, context, id_, value):
-        with context.session.begin(subtransactions=True):
-            row = self._get_resource(context, value, id_)
-            if row:
-                row.update(value)
-        return self._make_row_dict(row)
-
-    def delete_qos_classifiers_list_entry(self, context, id_):
-        with context.session.begin(subtransactions=True):
-            row = self._get_resource(context, QosClassifiersListEntry, id_)
-            context.session.delete(row)
-
-    def get_qos_classifiers_list_entry(self, context, id_, fields=None):
-        row = self._get_resource(context, QosClassifiersListEntry, id_)
-        return self._make_row_dict(row, fields)
-
-    def get_qos_classifiers_list_entries(self, context, filters=None, fields=None):
-        return self._get_collection(context, QosClassifiersListEntry,
-                                    self._make_row_dict,
                                     filters=filters, fields=fields)

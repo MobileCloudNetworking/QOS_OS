@@ -33,14 +33,6 @@ class QosClassifierNotFound(qexception.NotFound):
     message = _("qos_classifier %(id)s not found")
 
 
-class QosParamsListEntryNotFound(qexception.NotFound):
-    message = _("qos_params_list_entry %(id)s not found")
-
-
-class QosClassifiersListEntryNotFound(qexception.NotFound):
-    message = _("qos_classifiers_list_entry %(id)s not found")
-
-
 # define resource attribute map four every type of resource
 RESOURCE_ATTRIBUTE_MAP_QOS = {
     'qos': {
@@ -68,9 +60,10 @@ RESOURCE_ATTRIBUTE_MAP_QOS = {
                    'validate': {'type:uuid': None},
                    'required_by_policy': True, 'is_visible': True},
 
-        'qos_parameters': {'allow_post': True, 'allow_put': True,
-                           'validate': {'type:string': None},
-                           'is_visible': True, 'default': ''}
+        'qos_params': {'allow_post': True, 'allow_put': True,
+                       'validate': {'type:uuid_list': None},
+                       'convert_to': attr.convert_none_to_empty_list,
+                       'default': None, 'is_visible': True}
     }
 }
 
@@ -93,8 +86,9 @@ RESOURCE_ATTRIBUTE_MAP_QOS_PARAM = {
                    'is_visible': True, 'default': ''},
 
         'qos_classifiers': {'allow_post': True, 'allow_put': True,
-                   'validate': {'type:string': None},
-                   'is_visible': True, 'default': ''}
+                           'validate': {'type:uuid_list': None},
+                           'convert_to': attr.convert_none_to_empty_list,
+                           'default': None, 'is_visible': True}
     }
 }
 
