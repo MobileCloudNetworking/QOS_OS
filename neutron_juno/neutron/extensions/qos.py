@@ -10,12 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-__author__ = "Marco Del Seppia"
-__version__ = "0.1"
-__maintainer__ = "Marco Del Seppia"
-__email__ = "m.delseppia@nextworks.it"
-__status__ = "Developing"
-
 from neutron.api import extensions
 from neutron.common import exceptions as qexception
 from neutron.openstack.common import log as logging
@@ -57,30 +51,52 @@ RESOURCE_ATTRIBUTE_MAP_QOS = {
         'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},
+
         'tenant_id': {'allow_post': True, 'allow_put': False,
                       'validate': {'type:string': None},
                       'required_by_policy': True, 'is_visible': True},
-        'qos_param': {'allow_post': True, 'allow_put': True,
+
+        'type': {'allow_post': True, 'allow_put': True,
+                 'validate': {'type:string': None},
+                 'is_visible': True, 'default': ''},
+
+        'ingress_id': {'allow_post': True, 'allow_put': True,
+                       'validate': {'type:string': None},
+                       'is_visible': True, 'default': ''},
+
+        'egress_id': {'allow_post': True, 'allow_put': True,
+                      'validate': {'type:string': None},
+                      'is_visible': True, 'default': ''},
+
+        'net_id': {'allow_post': True, 'allow_put': False,
                    'validate': {'type:string': None},
-                   'is_visible': True, 'default': ''}
+                   'required_by_policy': True, 'is_visible': True},
+
+        'qos_parameters': {'allow_post': True, 'allow_put': True,
+                           'validate': {'type:string': None},
+                           'is_visible': True, 'default': ''}
     }
 }
     
 RESOURCE_ATTRIBUTE_MAP_QOS_PARAM = {
     'qos_param': {
-		'id': {'allow_post': False, 'allow_put': False,
+	'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},
+
         'tenant_id': {'allow_post': True, 'allow_put': False,
                       'validate': {'type:string': None},
                       'required_by_policy': True, 'is_visible': True},
-        'param_type': {'allow_post': True, 'allow_put': True,
-                   'validate': {'type:string': None},
-                   'is_visible': True, 'default': ''},
+
+        'type': {'allow_post': True, 'allow_put': True,
+                 'validate': {'type:string': None},
+                 'is_visible': True, 'default': ''},
+
         'policy': {'allow_post': True, 'allow_put': True,
                    'validate': {'type:string': None},
                    'is_visible': True, 'default': ''},
-        'qos_classifier': {'allow_post': True, 'allow_put': True,
+
+        'qos_classifiers': {'allow_post': True, 'allow_put': True,
                    'validate': {'type:string': None},
                    'is_visible': True, 'default': ''}
     }
@@ -88,15 +104,18 @@ RESOURCE_ATTRIBUTE_MAP_QOS_PARAM = {
 
 RESOURCE_ATTRIBUTE_MAP_QOS_CLASSIFIER = {
     'qos_classifier': {
-		'id': {'allow_post': False, 'allow_put': False,
+	'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},
+
         'tenant_id': {'allow_post': True, 'allow_put': False,
                       'validate': {'type:string': None},
                       'required_by_policy': True, 'is_visible': True},
-        'classifier_type': {'allow_post': True, 'allow_put': True,
-                   'validate': {'type:string': None},
-                   'is_visible': True, 'default': ''},
+
+        'type': {'allow_post': True, 'allow_put': True,
+                 'validate': {'type:string': None},
+                 'is_visible': True, 'default': ''},
+
         'policy': {'allow_post': True, 'allow_put': True,
                    'validate': {'type:string': None},
                    'is_visible': True, 'default': ''}
