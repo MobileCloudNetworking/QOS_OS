@@ -601,6 +601,26 @@ class MechanismManager(stevedore.named.NamedExtensionManager):
                     {'port': context._port['id'],
                      'host': binding.host})
 
+    # QoS extensions support:
+    # these actions are performed before any action on the DB!
+    def create_qos_precommit(self, context):
+        self._call_on_drivers("create_qos_precommit", context)
+
+    def delete_qos_precommit(self, context):
+        self._call_on_drivers("delete_qos_precommit", context)
+
+    def create_qos_params_precommit(self, context):
+        self._call_on_drivers("create_qos_params_precommit", context)
+
+    def delete_qos_params_precommit(self, context):
+        self._call_on_drivers("delete_qos_params_precommit", context)
+
+    def create_qos_classifier_precommit(self, context):
+        self._call_on_drivers("create_qos_classifier_precommit", context)
+
+    def delete_qos_classifier_precommit(self, context):
+        self._call_on_drivers("delete_qos_classifier_precommit", context)
+
 
 class ExtensionManager(stevedore.named.NamedExtensionManager):
     """Manage extension drivers using drivers."""

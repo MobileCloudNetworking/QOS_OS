@@ -675,6 +675,32 @@ class MechanismDriver(object):
         """
         pass
 
+    # QoS extensions support:
+    # (for now) we want to force the drivers to implement the Qos methods!
+    def create_qos_precommit(self, context):
+        """Attempt to create a Qos resource."""
+        pass
+
+    def delete_qos_precommit(self, context):
+        """Attempt to delete a Qos resource."""
+        pass
+
+    def create_qos_params_precommit(self, context):
+        """Attempt to create a Qos-parameters resource."""
+        pass
+
+    def delete_qos_params_precommit(self, context):
+        """Attempt to delete a Qos-parameters resource."""
+        pass
+
+    def create_qos_classifier_precommit(self, context):
+        """Attempt to create a Qos-classifier resource."""
+        pass
+
+    def delete_qos_classifier_precommit(self, context):
+        """Attempt to delete a Qos-classifier resource."""
+        pass
+
 
 @six.add_metaclass(abc.ABCMeta)
 class ExtensionDriver(object):
