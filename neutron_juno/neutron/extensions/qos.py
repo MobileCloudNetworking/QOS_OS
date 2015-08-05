@@ -53,7 +53,7 @@ RESOURCE_ATTRIBUTE_MAP_QOS = {
                'is_visible': True, 'primary_key': True},
 
         'tenant_id': {'allow_post': True, 'allow_put': False,
-                      'validate': {'type:string': None},
+                      'validate': {'type:uuid': None},
                       'required_by_policy': True, 'is_visible': True},
 
         'type': {'allow_post': True, 'allow_put': True,
@@ -61,15 +61,15 @@ RESOURCE_ATTRIBUTE_MAP_QOS = {
                  'is_visible': True, 'default': ''},
 
         'ingress_id': {'allow_post': True, 'allow_put': True,
-                       'validate': {'type:string': None},
+                       'validate': {'type:uuid': None},
                        'is_visible': True, 'default': ''},
 
         'egress_id': {'allow_post': True, 'allow_put': True,
-                      'validate': {'type:string': None},
+                      'validate': {'type:uuid': None},
                       'is_visible': True, 'default': ''},
 
         'net_id': {'allow_post': True, 'allow_put': False,
-                   'validate': {'type:string': None},
+                   'validate': {'type:uuid': None},
                    'required_by_policy': True, 'is_visible': True},
 
         'qos_parameters': {'allow_post': True, 'allow_put': True,
@@ -85,7 +85,7 @@ RESOURCE_ATTRIBUTE_MAP_QOS_PARAM = {
                'is_visible': True, 'primary_key': True},
 
         'tenant_id': {'allow_post': True, 'allow_put': False,
-                      'validate': {'type:string': None},
+                      'validate': {'type:uuid': None},
                       'required_by_policy': True, 'is_visible': True},
 
         'type': {'allow_post': True, 'allow_put': True,
@@ -109,7 +109,7 @@ RESOURCE_ATTRIBUTE_MAP_QOS_CLASSIFIER = {
                'is_visible': True, 'primary_key': True},
 
         'tenant_id': {'allow_post': True, 'allow_put': False,
-                      'validate': {'type:string': None},
+                      'validate': {'type:uuid': None},
                       'required_by_policy': True, 'is_visible': True},
 
         'type': {'allow_post': True, 'allow_put': True,
