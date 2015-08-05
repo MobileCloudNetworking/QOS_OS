@@ -20,30 +20,33 @@ from neutron.api.v2 import resource_helper
 LOG = logging.getLogger(__name__)
 
 
-# qos Exceptions
-class qosInternalError(qexception.NeutronException):
+# Exception classes for the three QoS resources
+class QosInternalError(qexception.NeutronException):
     """Qos exception for all the error types."""
     message = _("%(internal)s: Internal error.")
 
 
-class qosNotFound(qexception.NotFound):
+class QosNotFound(qexception.NotFound):
     message = _("qos %(qos_id)s not found")
-    
-# qos_param Exceptions
-class qos_paramInternalError(qexception.NeutronException):
+
+
+class QosParamInternalError(qexception.NeutronException):
     """Qos_param exception for all the error types."""
     message = _("%(internal)s: Internal error.")
 
-class qos_paramNotFound(qexception.NotFound):
+
+class QosParamNotFound(qexception.NotFound):
     message = _("qos_param %(qos_param_id)s not found")
-    
-# qos_classifier Exceptions
-class qos_classifierInternalError(qexception.NeutronException):
+
+
+class QosClassifierInternalError(qexception.NeutronException):
     """Qos_classifier exception for all the error types."""
     message = _("%(internal)s: Internal error.")
 
-class qos_classifierNotFound(qexception.NotFound):
+
+class QosClassifierNotFound(qexception.NotFound):
     message = _("qos_classifier %(qos_classifier_id)s not found")
+
 
 # define resource attribute map four every type of resource
 RESOURCE_ATTRIBUTE_MAP_QOS = {
@@ -77,7 +80,7 @@ RESOURCE_ATTRIBUTE_MAP_QOS = {
                            'is_visible': True, 'default': ''}
     }
 }
-    
+
 RESOURCE_ATTRIBUTE_MAP_QOS_PARAM = {
     'qos_param': {
 	'id': {'allow_post': False, 'allow_put': False,
@@ -122,7 +125,8 @@ RESOURCE_ATTRIBUTE_MAP_QOS_CLASSIFIER = {
     }
 }
 
-class qos(extensions.ExtensionDescriptor):
+
+class Qoss(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_name(cls):
@@ -157,10 +161,11 @@ class qos(extensions.ExtensionDescriptor):
                                                    None)
 
     def update_attributes_map(self, attributes):
-        super(qos, self).update_attributes_map(
+        super(Qoss, self).update_attributes_map(
             attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP_QOS)
 
-class qos_param(extensions.ExtensionDescriptor):
+
+class QosParams(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_name(cls):
@@ -195,10 +200,11 @@ class qos_param(extensions.ExtensionDescriptor):
                                                    None)
 
     def update_attributes_map(self, attributes):
-        super(qos_param, self).update_attributes_map(
+        super(QosParams, self).update_attributes_map(
             attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP_QOS_PARAM)
 
-class qos_classifier(extensions.ExtensionDescriptor):
+
+class QosClassifiers(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_name(cls):
@@ -233,5 +239,5 @@ class qos_classifier(extensions.ExtensionDescriptor):
                                                    None)
 
     def update_attributes_map(self, attributes):
-        super(qos, self).update_attributes_map(
+        super(QosClassifiers, self).update_attributes_map(
             attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP_QOS_CLASSIFIER)

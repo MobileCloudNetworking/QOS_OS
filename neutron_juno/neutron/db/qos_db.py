@@ -19,7 +19,7 @@ from sqlalchemy.orm import exc
 from neutron.db import common_db_mixin as base_db
 from neutron.db import model_base
 from neutron.db import models_v2
-from neutron.extensions import qos
+import neutron.extensions.qos
 from neutron.openstack.common import excutils
 from neutron.openstack.common import log as logging
 from neutron.openstack.common import uuidutils
@@ -104,7 +104,7 @@ class QosDBManager(base_db.CommonDbMixin):
         except exc.NoResultFound:
             with excutils.save_and_reraise_exception(reraise=False) as ctx:
                 if issubclass(model, Qos):
-                    raise qos.qosNotFound(qos_id=id_)
+                    raise neutron.extensions.qos.QosNotFound(qos_id=id_)
                 ctx.reraise = True
 
     def create_qos(self, context, qos_value):
@@ -159,7 +159,7 @@ class QosParamDBManager(base_db.CommonDbMixin):
         except exc.NoResultFound:
             with excutils.save_and_reraise_exception(reraise=False) as ctx:
                 if issubclass(model, QosParam):
-                    raise qos.qos_paramNotFound(qos_param_id=id_)
+                    raise neutron.extensions.qos.QosParamNotFound(qos_param_id=id_)
                 ctx.reraise = True
 
     def create_qos_param(self, context, qos_param):
@@ -209,7 +209,7 @@ class QosParamsListDBManager(base_db.CommonDbMixin):
         except exc.NoResultFound:
             with excutils.save_and_reraise_exception(reraise=False) as ctx:
                 if issubclass(row, QosParamsList):
-                    raise qos.qos_paramNotFound(qos_param_id=id_)
+                    raise neutron.extensions.qos.QosParamNotFound(qos_param_id=id_)
                 ctx.reraise = True
 
     def create_qos_params_list(self, context, value):
@@ -258,7 +258,7 @@ class QosClassifierDBManager(base_db.CommonDbMixin):
         except exc.NoResultFound:
             with excutils.save_and_reraise_exception(reraise=False) as ctx:
                 if issubclass(model, QosClassifier):
-                    raise qos.qos_classifierNotFound(qos_classifier_id=id_)
+                    raise neutron.extensions.qos.QosClassifierNotFound(qos_classifier_id=id_)
                 ctx.reraise = True
 
     def create_qos_classifier(self, context, qos_classifier):
