@@ -24,7 +24,9 @@ from neutron.openstack.common import excutils
 from neutron.openstack.common import log as logging
 from neutron.openstack.common import uuidutils
 
+
 LOG = logging.getLogger(__name__)
+
 
 # DB table entry representing a QoS resource
 class Qos(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
@@ -38,6 +40,15 @@ class Qos(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
     net_id = sa.Column(sa.String(36), nullable=False,
                        sa.ForeignKey('ports.id', ondelete="CASCADE"))
 
+
+# DB table entry representing a QoS parameter resource
+class QosParam(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
+    """Represents a Qos parameter Object."""
+    __tablename__ = 'qos_parameters'
+    type = sa.Column(sa.String(64), nullable=False)
+    policy = sa.Column(sa.String(64), nullable=False)
+
+
 # DB table entry representing the relationship between a QoS resource and
 # a QoS parameter resource
 class QosParamsList(model_base.BASEV2):
@@ -49,12 +60,14 @@ class QosParamsList(model_base.BASEV2):
                              sa.ForeignKey('qos_parameters.id',
                                            ondelete="CASCADE")
 
-# DB table entry representing a QoS parameter resource
-class QosParam(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
-    """Represents a Qos parameter Object."""
-    __tablename__ = 'qos_parameters'
+
+# DB table entry representing a QoS classifier resource
+class QosClassifier(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
+    """Represents a Qos classifier Object."""
+    __tablename__ = 'qos_classifiers'
     type = sa.Column(sa.String(64), nullable=False)
     policy = sa.Column(sa.String(64), nullable=False)
+
 
 # DB table entry representing the relationship between a QoS parameter
 # resource and a QoS classifier resource
@@ -69,12 +82,6 @@ class QosClassifiersList(model_base.BASEV2):
                                   sa.ForeignKey('qos_classifiers.id',
                                                 ondelete="CASCADE"))
 
-# DB table entry representing a QoS classifier resource
-class QosClassifier(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
-    """Represents a Qos classifier Object."""
-    __tablename__ = 'qos_classifiers'
-    type = sa.Column(sa.String(64), nullable=False)
-    policy = sa.Column(sa.String(64), nullable=False)
 
 # Utility class to manipulate the qoss table
 class QosDBManager(base_db.CommonDbMixin):
@@ -134,6 +141,7 @@ class QosDBManager(base_db.CommonDbMixin):
                                     self._make_qos_dict,
                                     filters=filters, fields=fields)
 
+
 # Utility class to manipulate the qos_parameters table
 class QosParamDBManager(base_db.CommonDbMixin):
     """QosParam database class using SQLAlchemy models."""
@@ -184,6 +192,54 @@ class QosParamDBManager(base_db.CommonDbMixin):
         return self._get_collection(context, QosParam,
                                     self._make_qos_param_dict,
                                     filters=filters, fields=fields)
+
+
+# Utility class to manipulate the qos_params_lists table
+class QosParamsListDBManager(base_db.CommonDbMixin):
+    """QosParamsList database class using SQLAlchemy models."""
+
+    def _make_qos_params_list_dict(self, row, fields=None):
+        res = {'qos_id': row['qos_id'],
+               'qos_param_id': row['qos_param_id']}
+        return self._fields(res, fields)
+
+    def _get_resource(self, context, row, id_):
+        try:
+            return self._get_by_id(context, row, id_)
+        except exc.NoResultFound:
+            with excutils.save_and_reraise_exception(reraise=False) as ctx:
+                if issubclass(row, QosParamsList):
+                    raise qos.qos_paramNotFound(qos_param_id=id_)
+                ctx.reraise = True
+
+    def create_qos_params_list(self, context, value):
+        with context.session.begin(subtransactions=True):
+            row = QosParamsList(qos_id=value.get('qos_id'),
+                                qos_param_id=value.get('qos_param_id'))
+            context.session.add(row)
+        return self._make_qos_params_list_dict(row)
+
+    def update_qos_params_list(self, context, id_, value):
+        with context.session.begin(subtransactions=True):
+            row = self._get_resource(context, value, id_)
+            if row:
+                row.update(value)
+        return self._make_qos_params_list_dict(row)
+
+    def delete_qos_params_list(self, context, id_):
+        with context.session.begin(subtransactions=True):
+            row = self._get_resource(context, QosParamsList, id_)
+            context.session.delete(row)
+
+    def get_qos_params_list(self, context, id_, fields=None):
+        row = self._get_resource(context, QosParamsList, id_)
+        return self._make_qos_params_list_dict(row, fields)
+
+    def get_qos_params_lists(self, context, filters=None, fields=None):
+        return self._get_collection(context, QosParamsList,
+                                    self._make_qos_params_list_dict,
+                                    filters=filters, fields=fields)
+
 
 # Utility class to manipulate the qos_classifiers table
 class QosClassifierDBManager(base_db.CommonDbMixin):
