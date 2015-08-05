@@ -193,8 +193,7 @@ class qos_classifier(neutron.NeutronResource):
         ),
         POLICY: properties.Schema(
             properties.Schema.STRING,
-            _('ID of an existing port to associate with type destinationIf or'
-              ' a level 3 protocol if type is L3_protocol.'),
+            _('a level 3 protocol if type is l3_protocol'),
             required=True,
             update_allowed=True,
             constraints=[
