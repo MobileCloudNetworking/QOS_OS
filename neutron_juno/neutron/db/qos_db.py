@@ -107,30 +107,16 @@ class QosParamQosClassifierAssociation(model_base.BASEV2):
 class QosDBManager(base_db.CommonDbMixin):
     """QoS database classes using SQLAlchemy models."""
 
-    def _get_qos(self, context, model, id_):
+    def _get_resource(self, context, model, id_):
         try:
             return self._get_by_id(context, model, id_)
         except exc.NoResultFound:
             with excutils.save_and_reraise_exception(reraise=False) as ctx:
                 if issubclass(model, Qos):
                     raise neutron.extensions.qos.QosNotFound(id=id_)
-                ctx.reraise = True
-
-    def _get_qos_param(self, context, model, id_):
-        try:
-            return self._get_by_id(context, model, id_)
-        except exc.NoResultFound:
-            with excutils.save_and_reraise_exception(reraise=False) as ctx:
-                if issubclass(model, QosParam):
+                elif issubclass(model, QosParam):
                     raise neutron.extensions.qos.QosParamNotFound(id=id_)
-                ctx.reraise = True
-
-    def _get_qos_classifier(self, context, model, id_):
-        try:
-            return self._get_by_id(context, model, id_)
-        except exc.NoResultFound:
-            with excutils.save_and_reraise_exception(reraise=False) as ctx:
-                if issubclass(model, QosClassifier):
+                elif issubclass(model, QosClassifier):
                     raise neutron.extensions.qos.QosClassifierNotFound(id=id_)
                 ctx.reraise = True
 
@@ -192,18 +178,18 @@ class QosDBManager(base_db.CommonDbMixin):
 
     def update_qos(self, context, id_, qos):
         with context.session.begin(subtransactions=True):
-            qos_db = self._get_qos(context, qos, id_)
+            qos_db = self._get_resource(context, qos, id_)
             if qos:
                 qos_db.update(qos)
         return self._make_qos_dict(qos_db)
 
     def delete_qos(self, context, id_):
         with context.session.begin(subtransactions=True):
-            qos_db = self._get_qos(context, Qos, id_)
+            qos_db = self._get_resource(context, Qos, id_)
             context.session.delete(qos_db)
 
     def get_qos(self, context, id_, fields=None):
-        qos_db = self._get_qos(context, Qos, id_)
+        qos_db = self._get_resource(context, Qos, id_)
         return self._make_qos_dict(qos_db, fields)
     
     def get_qoss(self, context, filters=None, fields=None):
@@ -240,18 +226,18 @@ class QosDBManager(base_db.CommonDbMixin):
 
     def update_qos_param(self, context, id_, qos_param):
         with context.session.begin(subtransactions=True):
-            qos_param_db = self._get_qos_param(context, qos_param, id_)
+            qos_param_db = self._get_resource(context, qos_param, id_)
             if qos_param:
                 qos_param_db.update(qos_param)
         return self._make_qos_param_dict(qos_param_db)
 
     def delete_qos_param(self, context, id_):
         with context.session.begin(subtransactions=True):
-            qos_param_db = self._get_qos_param(context, QosParam, id_)
+            qos_param_db = self._get_resource(context, QosParam, id_)
             context.session.delete(qos_param_db)
 
     def get_qos_param(self, context, id_, fields=None):
-        qos_param_db = self._get_qos_param(context, QosParam, id_)
+        qos_param_db = self._get_resource(context, QosParam, id_)
         return self._make_qos_param_dict(qos_param_db, fields)
 
     def get_qos_params(self, context, filters=None, fields=None):
@@ -271,18 +257,18 @@ class QosDBManager(base_db.CommonDbMixin):
 
     def update_qos_classifier(self, context, id_, qos_classifier):
         with context.session.begin(subtransactions=True):
-            qos_classifier_db = self._get_qos_classifier(context, qos_classifier, id_)
+            qos_classifier_db = self._get_resource(context, qos_classifier, id_)
             if qos_classifier:
                 qos_classifier_db.update(qos_classifier)
         return self._make_qos_classifier_dict(qos_classifier_db)
 
     def delete_qos_classifier(self, context, id_):
         with context.session.begin(subtransactions=True):
-            qos_classifier_db = self._get_qos_classifier(context, QosClassifier, id_)
+            qos_classifier_db = self._get_resource(context, QosClassifier, id_)
             context.session.delete(qos_classifier_db)
 
     def get_qos_classifier(self, context, id_, fields=None):
-        qos_classifier_db = self._get_qos_classifier(context, QosClassifier, id_)
+        qos_classifier_db = self._get_resource(context, QosClassifier, id_)
         return self._make_qos_classifier_dict(qos_classifier_db, fields)
 
     def get_qos_classifiers(self, context, filters=None, fields=None):
