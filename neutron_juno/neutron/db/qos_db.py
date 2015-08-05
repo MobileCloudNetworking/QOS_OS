@@ -76,15 +76,18 @@ class QosClassifier(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
     type = sa.Column(sa.String(64), nullable=False)
     policy = sa.Column(sa.String(64), nullable=False)
 
-# 
-class qosDBManager(base_db.CommonDbMixin):
-    """qos database class using SQLAlchemy models."""
+# Utility class to manipulate the qoss table
+class QosDBManager(base_db.CommonDbMixin):
+    """Qos database class using SQLAlchemy models."""
 
     # prepare a disctionary with the associated params
     def _make_qos_dict(self, qos, fields=None):
         res = {'id': qos['id'],
                'tenant_id': qos['tenant_id'],
-               'qos_param': qos['qos_param']}
+               'type': qos['type'],
+               'ingress_id': qos['ingress_id'],
+               'egress_id': qos['egress_id'],
+               'net_id': qos['net_id']}
         return self._fields(res, fields)
 
     
@@ -93,16 +96,20 @@ class qosDBManager(base_db.CommonDbMixin):
             return self._get_by_id(context, model, id_)
         except exc.NoResultFound:
             with excutils.save_and_reraise_exception(reraise=False) as ctx:
-                if issubclass(model, qos):
+                if issubclass(model, Qos):
                     raise qos.qosNotFound(qos_id=id_)
                 ctx.reraise = True
 
-    def create_qos(self, context, qos):
+    def create_qos(self, context, qos_value):
         with context.session.begin(subtransactions=True):
-            qos_db = qos(id=uuidutils.generate_uuid(),
-                                  tenant_id=qos.get('tenant_id'),
-                                  qos_param=qos.get('qos_param'))
+            qos_db = Qos(id=uuidutils.generate_uuid(),
+                         tenant_id=qos_value.get('tenant_id'),
+                         type=qos_value.get('type'),
+                         ingress_id=qos_value.get('ingress_id'),
+                         egress_id=qos_value.get('egress_id'),
+                         net_id=qos_value.get('net_id'))
             context.session.add(qos_db)
+            #qos_param=qos_value.get('qos_param')
         return self._make_qos_dict(qos_db)
 
     def update_qos(self, context, id_, qos):
@@ -114,28 +121,28 @@ class qosDBManager(base_db.CommonDbMixin):
 
     def delete_qos(self, context, id_):
         with context.session.begin(subtransactions=True):
-            qos_db = self._get_resource(context, qos, id_)
+            qos_db = self._get_resource(context, Qos, id_)
             context.session.delete(qos_db)
 
     def get_qos(self, context, id_, fields=None):
-        qos_db = self._get_resource(context, qos, id_)
+        qos_db = self._get_resource(context, Qos, id_)
         return self._make_qos_dict(qos_db, fields)
     
-    # return the qos collection
+    # return all the Qos entries
     def get_qoss(self, context, filters=None, fields=None):
-        return self._get_collection(context, qos,
+        return self._get_collection(context, Qos,
                                     self._make_qos_dict,
                                     filters=filters, fields=fields)
-                                    
-class qos_paramDBManager(base_db.CommonDbMixin):
-    """qos_param database class using SQLAlchemy models."""
+
+# Utility class to manipulate the qos_parameters table
+class QosParamDBManager(base_db.CommonDbMixin):
+    """QosParam database class using SQLAlchemy models."""
 
     def _make_qos_param_dict(self, qos_param, fields=None):
         res = {'id': qos_param['id'],
                'tenant_id': qos_param['tenant_id'],
-               'param_type': qos_param['param_type'],
-               'policy':qos_param['policy'],
-               'qos_classifier':qos_param['qos_classifier']}
+               'type': qos_param['type'],
+               'policy':qos_param['policy']}
         return self._fields(res, fields)
 
     def _get_resource(self, context, model, id_):
@@ -143,19 +150,19 @@ class qos_paramDBManager(base_db.CommonDbMixin):
             return self._get_by_id(context, model, id_)
         except exc.NoResultFound:
             with excutils.save_and_reraise_exception(reraise=False) as ctx:
-                if issubclass(model, qos):
+                if issubclass(model, QosParam):
                     raise qos.qos_paramNotFound(qos_param_id=id_)
                 ctx.reraise = True
 
     def create_qos_param(self, context, qos_param):
         with context.session.begin(subtransactions=True):
-            qos_param_db = qos_param(id=uuidutils.generate_uuid(),
-                                  tenant_id=qos_param.get('tenant_id'),
-                                  param_type=qos_param.get('param_type'),
-                                  policy=qos_param.get('policy'),
-                                  qos_classifier=qos_param.get('qos_classifier'))
-            context.session.add(qos_db)
-        return self._make_qos_dict(qos_db)
+            qos_param_db = QosParam(id=uuidutils.generate_uuid(),
+                                    tenant_id=qos_param.get('tenant_id'),
+                                    type=qos_param.get('type'),
+                                    policy=qos_param.get('policy'))
+            context.session.add(qos_param_db)
+            #qos_classifier=qos_param.get('qos_classifier')
+        return self._make_qos_param_dict(qos_param_db)
 
     def update_qos_param(self, context, id_, qos_param):
         with context.session.begin(subtransactions=True):
@@ -166,25 +173,26 @@ class qos_paramDBManager(base_db.CommonDbMixin):
 
     def delete_qos_param(self, context, id_):
         with context.session.begin(subtransactions=True):
-            qos_param_db = self._get_resource(context, qos_param, id_)
+            qos_param_db = self._get_resource(context, QosParam, id_)
             context.session.delete(qos_param_db)
 
     def get_qos_param(self, context, id_, fields=None):
-        qos_param_db = self._get_resource(context, qos_param, id_)
+        qos_param_db = self._get_resource(context, QosParam, id_)
         return self._make_qos_param_dict(qos_param_db, fields)
 
     def get_qos_params(self, context, filters=None, fields=None):
-        return self._get_collection(context, qos_param,
+        return self._get_collection(context, QosParam,
                                     self._make_qos_param_dict,
                                     filters=filters, fields=fields)
 
-class qos_classifierDBManager(base_db.CommonDbMixin):
-    """qos_classifier database class using SQLAlchemy models."""
+# Utility class to manipulate the qos_classifiers table
+class QosClassifierDBManager(base_db.CommonDbMixin):
+    """QosClassifier database class using SQLAlchemy models."""
 
     def _make_qos_classifier_dict(self, qos_classifier, fields=None):
         res = {'id': qos_classifier['id'],
                'tenant_id': qos_classifier['tenant_id'],
-               'classifier_type': qos_classifier['classifier_type'],
+               'type': qos_classifier['type'],
                'policy': qos_classifier['policy']}
         return self._fields(res, fields)
 
@@ -193,20 +201,20 @@ class qos_classifierDBManager(base_db.CommonDbMixin):
             return self._get_by_id(context, model, id_)
         except exc.NoResultFound:
             with excutils.save_and_reraise_exception(reraise=False) as ctx:
-                if issubclass(model, qos_classifier):
+                if issubclass(model, QosClassifier):
                     raise qos.qos_classifierNotFound(qos_classifier_id=id_)
                 ctx.reraise = True
 
     def create_qos_classifier(self, context, qos_classifier):
         with context.session.begin(subtransactions=True):
-            qos_classifier_db = qos_classifier(id=uuidutils.generate_uuid(),
-                                  tenant_id=qos_classifier.get('tenant_id'),
-                                  classifier_type=qos_classifier.get('classifier_type'),
-                                  policy=qos_classifier.get('policy'))
+            qos_classifier_db = QosClassifier(id=uuidutils.generate_uuid(),
+                                tenant_id=qos_classifier.get('tenant_id'),
+                                type=qos_classifier.get('type'),
+                                policy=qos_classifier.get('policy'))
             context.session.add(qos_classifier_db)
         return self._make_qos_classifier_dict(qos_classifier_db)
 
-    def update_qos(self, context, id_, qos):
+    def update_qos_classifier(self, context, id_, qos_classifier):
         with context.session.begin(subtransactions=True):
             qos_classifier_db = self._get_resource(context, qos_classifier, id_)
             if qos_classifier:
@@ -215,14 +223,14 @@ class qos_classifierDBManager(base_db.CommonDbMixin):
 
     def delete_qos_classifier(self, context, id_):
         with context.session.begin(subtransactions=True):
-            qos_classifier_db = self._get_resource(context, qos_classifier, id_)
+            qos_classifier_db = self._get_resource(context, QosClassifier, id_)
             context.session.delete(qos_classifier_db)
 
     def get_qos_classifier(self, context, id_, fields=None):
-        qos_classifier_db = self._get_resource(context, qos_classifier, id_)
+        qos_classifier_db = self._get_resource(context, QosClassifier, id_)
         return self._make_qos_classifier_dict(qos_classifier_db, fields)
 
     def get_qos_classifiers(self, context, filters=None, fields=None):
-        return self._get_collection(context, qos_classifier,
-                                    self._make_qos_dict,
+        return self._get_collection(context, QosClassifier,
+                                    self._make_qos_classifier_dict,
                                     filters=filters, fields=fields)
