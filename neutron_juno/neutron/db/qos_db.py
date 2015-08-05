@@ -13,12 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-__author__ = "Marco Del Seppia"
-__version__ = "0.1"
-__maintainer__ = "Marco Del Seppia"
-__email__ = "m.delseppia@nextworks.it"
-__status__ = "Developing"
-
 import sqlalchemy as sa
 from sqlalchemy.orm import exc
 
@@ -32,33 +26,55 @@ from neutron.openstack.common import uuidutils
 
 LOG = logging.getLogger(__name__)
 
-# describe a DB table columns represent a Qos resource
-class qos(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
-    """Represents a Qos Object."""
-    __tablename__ = 'qos'
-    qos_param = sa.Column(sa.String(64),
-                sa.ForeignKey('qos_param.id', ondelete="CASCADE"),
-                nullable=False)
-    
-# describe a DB table columns represent a Qos param resource
-class qos_param(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
-    """Represents a Qos parameter Object."""
-    __tablename__ = 'qos_param'
-    param_type = sa.Column(sa.String(64),
-                 nullable=False)
-    policy = sa.Column(sa.String(64),
-                 nullable=False)
-    qos_classifier = sa.Column(sa.String(64),
-                     sa.ForeignKey('qos_calssifier.id', ondelete="CASCADE"))
+# DB table entry representing a QoS resource
+class Qos(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
+    """Represents a Qos object."""
+    __tablename__ = 'qoss'
+    type = sa.Column(sa.String(64), nullable=False)
+    ingress_id = sa.Column(sa.String(36), nullable=False,
+                           sa.ForeignKey('ports.id', ondelete="CASCADE"))
+    egress_id = sa.Column(sa.String(36), nullable=False,
+                          sa.ForeignKey('ports.id', ondelete="CASCADE"))
+    net_id = sa.Column(sa.String(36), nullable=False,
+                       sa.ForeignKey('ports.id', ondelete="CASCADE"))
 
-# describe a DB table columns represent a Qos classifier resource
-class qos_classifier(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
+# DB table entry representing the relationship between a QoS resource and
+# a QoS parameter resource
+class QosParamsList(model_base.BASEV2):
+    """Represents a QoS parameter object contained by a QoS object"""
+    __tablename__ = 'qos_params_lists'
+    qos_id = sa.Column(sa.String(36), nullable=False, primary_key=True,
+                       sa.ForeignKey('qoss.id', ondelete="CASCADE"))
+    qos_param_id = sa.Column(sa.String(36), nullable=False, primary_key=True,
+                             sa.ForeignKey('qos_parameters.id',
+                                           ondelete="CASCADE")
+
+# DB table entry representing a QoS parameter resource
+class QosParam(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
+    """Represents a Qos parameter Object."""
+    __tablename__ = 'qos_parameters'
+    type = sa.Column(sa.String(64), nullable=False)
+    policy = sa.Column(sa.String(64), nullable=False)
+
+# DB table entry representing the relationship between a QoS parameter
+# resource and a QoS classifier resource
+class QosClassifiersList(model_base.BASEV2):
+    """Represents a QoS classifier object contained bt a QoS parameter object"""
+    __tablename__ = 'qos_classifiers_lists'
+    qos_param_id = sa.Column(sa.String(36), nullable=False, primary_key=True,
+                             sa.ForeignKey('qos_parameters.id',
+                                           ondelete="CASCADE")
+    qos_classifier_id = sa.Column(sa.String(36), nullable=False,
+                                  primary_key=True,
+                                  sa.ForeignKey('qos_classifiers.id',
+                                                ondelete="CASCADE"))
+
+# DB table entry representing a QoS classifier resource
+class QosClassifier(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
     """Represents a Qos classifier Object."""
-    __tablename__ = 'qos_classifier'
-    classifier_type = sa.Column(sa.String(64),
-             nullable=False)
-    policy = sa.Column(sa.String(64),
-             nullable=False)
+    __tablename__ = 'qos_classifiers'
+    type = sa.Column(sa.String(64), nullable=False)
+    policy = sa.Column(sa.String(64), nullable=False)
 
 # 
 class qosDBManager(base_db.CommonDbMixin):
