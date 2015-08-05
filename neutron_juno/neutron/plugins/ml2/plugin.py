@@ -1199,3 +1199,109 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
                 if port:
                     return port.id
         return device
+
+    # QoS extensions support:
+    def create_qos(self, context, info):
+        LOG.debug("create_qos: context=%s, info=%s" % (context, info,))
+
+        row = None
+
+        LOG.info("create_qos: row=%s" % (row,))
+        return row
+
+    def delete_qos(self, context, id):
+        LOG.debug("delete_qos: context=%s, id=%s" % (context, id,))
+
+    def update_qos(self, context, id, info):
+        LOG.debug("update_qos: context=%s, id=%s, info=%s" % (context, id, info,))
+
+        row = None
+
+        LOG.info("update_qos: row=%s" % (row,))
+        return row
+
+    def get_qos(self, context, id, fields):
+        LOG.debug("get_qos: context=%s, id=%s, fields=%s" % (context, id, fields,))
+
+        row = None
+
+        LOG.info("get_qos: row=%s" % (row,))
+        return row
+
+    def get_qoss(self, context, filters, fields):
+        LOG.debug("get_qoss: context=%s, filters=%s, fields=%s" % (context, filters, fields,))
+
+        rows = []
+
+        LOG.info("get_qoss: rows=%s" % (rows,))
+        return rows
+
+    def create_qos_param(self, context, info):
+        LOG.debug("create_qos_param: context=%s, info=%s" % (context, info,))
+
+        row = None
+
+        LOG.info("create_qos_param: row=%s" % (row,))
+        return row
+
+    def delete_qos_param(self, context, id):
+        LOG.debug("delete_qos_param: context=%s, id=%s" % (context, id,))
+
+    def update_qos_param(self, context, id, info):
+        LOG.debug("update_qos_param: context=%s, id=%s, info=%s" % (context, id, info,))
+
+        row = None
+
+        LOG.info("update_qos_param: row=%s" % (row,))
+        return row
+
+    def get_qos_param(self, context, id, fields):
+        LOG.debug("get_qos_param: context=%s, id=%s, fields=%s" % (context, id, fields,))
+
+        row = None
+
+        LOG.info("get_qos_param: row=%s" % (row,))
+        return row
+
+    def get_qos_params(self, context, filters, fields):
+        LOG.debug("get_qos_params: context=%s, filters=%s, fields=%s" % (context, filters, fields,))
+
+        rows = []
+
+        LOG.info("get_qos_params: rows=%s" % (rows,))
+        return rows
+
+    def create_qos_classifier(self, context, info):
+        LOG.debug("create_qos_classifier: context=%s, info=%s" % (context, info,))
+
+        row = None
+
+        LOG.info("create_qos_classifier: row=%s" % (row,))
+        return row
+
+    def delete_qos_classifier(self, context, id):
+        LOG.debug("delete_qos_classifier: context=%s, id=%s" % (context, id,))
+
+    def update_qos_classifier(self, context, id, info):
+        LOG.debug("update_qos_classifier: context=%s, id=%s, info=%s" % (context, id, info,))
+
+        row = None
+
+        LOG.info("update_qos_classifier: row=%s" % (row,))
+        return row
+
+    def get_qos_classifier(self, context, id, fields):
+        LOG.debug("get_qos_classifier: context=%s, id=%s, fields=%s" % (context, id, fields,))
+
+        row = None
+
+        LOG.info("get_qos_classifier: row=%s" % (row,))
+        return row
+
+    def get_qos_classifiers(self, context, filters, fields):
+        LOG.debug("get_qos_classifiers: context=%s, filters=%s, fields=%s" % (context, filters, fields,))
+
+        rows = []
+
+        LOG.info("get_qos_classifiers: rows=%s" % (rows,))
+        return rows
