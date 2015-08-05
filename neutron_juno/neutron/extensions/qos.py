@@ -21,31 +21,24 @@ LOG = logging.getLogger(__name__)
 
 
 # Exception classes for the three QoS resources
-class QosInternalError(qexception.NeutronException):
-    """Qos exception for all the error types."""
-    message = _("%(internal)s: Internal error.")
-
-
 class QosNotFound(qexception.NotFound):
-    message = _("qos %(qos_id)s not found")
-
-
-class QosParamInternalError(qexception.NeutronException):
-    """Qos_param exception for all the error types."""
-    message = _("%(internal)s: Internal error.")
+    message = _("qos %(id)s not found")
 
 
 class QosParamNotFound(qexception.NotFound):
-    message = _("qos_param %(qos_param_id)s not found")
-
-
-class QosClassifierInternalError(qexception.NeutronException):
-    """Qos_classifier exception for all the error types."""
-    message = _("%(internal)s: Internal error.")
+    message = _("qos_param %(id)s not found")
 
 
 class QosClassifierNotFound(qexception.NotFound):
-    message = _("qos_classifier %(qos_classifier_id)s not found")
+    message = _("qos_classifier %(id)s not found")
+
+
+class QosParamsListEntryNotFound(qexception.NotFound):
+    message = _("qos_params_list_entry %(id)s not found")
+
+
+class QosClassifiersListEntryNotFound(qexception.NotFound):
+    message = _("qos_classifiers_list_entry %(id)s not found")
 
 
 # define resource attribute map four every type of resource
