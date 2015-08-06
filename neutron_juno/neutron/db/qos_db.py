@@ -147,32 +147,36 @@ class QosDBManager(base_db.CommonDbMixin):
                'policy': qos_classifier['policy']}
         return self._fields(res, fields)
 
+    def _set_params_for_qos(context, qos_db, qos_param_ids):
+        with context.session.begin(subtransactions=True):
+            qos_db.qos_params = []
+            if not qos_param_ids:
+                return
+
+            for qpid in qos_param_ids:
+                qry = context.session.query(QosQosParamAssociation)
+                assoc = qry.filter_by(qos_id=qos_db['id'],
+                                      qos_param_id=qpid).first()
+                if assoc:
+                    LOG.info(_("Association between %s and %s already exists") % (qos_id, qos_param_id))
+                    continue
+
+                assoc = QosQosParamAssociation(qos_id=qos_db['id'],
+                                               qos_param_id=qpid)
+                qos_db.qos_params.append(assoc)
+
     # QoS
-    def create_qos(self, context, qos_value):
+    def create_qos(self, context, value):
         with context.session.begin(subtransactions=True):
             qos_db = Qos(id=uuidutils.generate_uuid(),
-                         tenant_id=qos_value.get('tenant_id'),
-                         type=qos_value.get('type'),
-                         ingress_id=qos_value.get('ingress_id'),
-                         egress_id=qos_value.get('egress_id'),
-                         net_id=qos_value.get('net_id'))
+                         tenant_id=value.get('tenant_id'),
+                         type=value.get('type'),
+                         ingress_id=value.get('ingress_id'),
+                         egress_id=value.get('egress_id'),
+                         net_id=value.get('net_id'))
             context.session.add(qos_db)
 
-            qos_param_ids = qos_value.get('qos_params')
-            with context.session.begin(subtransactions=True):
-                qos_db.qos_params = []
-                if qos_param_ids:
-                    for qpid in qos_param_ids:
-                        qry = context.session.query(QosQosParamAssociation)
-                        assoc = qry.filter_by(qos_id=qos_db['id'],
-                                              qos_param_id=qpid).first()
-                        if assoc:
-                            LOG.info(_("Association between %s and %s already exists") % (qos_id, qos_param_id))
-                            continue
-
-                        assoc = QosQosParamAssociation(qos_id=qos_db['id'],
-                                                       qos_param_id=qpid)
-                        qos_db.qos_params.append(assoc)
+            self._set_params_for_qos(context, qos_db, value.get('qos_params'))
 
         return self._make_qos_dict(qos_db)
 
