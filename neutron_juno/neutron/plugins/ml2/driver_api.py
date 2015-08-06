@@ -685,11 +685,11 @@ class MechanismDriver(object):
         """Attempt to delete a Qos resource."""
         pass
 
-    def create_qos_params_precommit(self, context):
+    def create_qos_param_precommit(self, context):
         """Attempt to create a Qos-parameters resource."""
         pass
 
-    def delete_qos_params_precommit(self, context):
+    def delete_qos_param_precommit(self, context):
         """Attempt to delete a Qos-parameters resource."""
         pass
 
