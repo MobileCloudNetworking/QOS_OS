@@ -178,7 +178,7 @@ class QosDBManager(base_db.CommonDbMixin):
 
     def update_qos(self, context, id_, qos):
         with context.session.begin(subtransactions=True):
-            qos_db = self._get_resource(context, qos, id_)
+            qos_db = self._get_resource(context, Qos, id_)
             if qos:
                 qos_db.update(qos)
         return self._make_qos_dict(qos_db)
@@ -226,7 +226,7 @@ class QosDBManager(base_db.CommonDbMixin):
 
     def update_qos_param(self, context, id_, qos_param):
         with context.session.begin(subtransactions=True):
-            qos_param_db = self._get_resource(context, qos_param, id_)
+            qos_param_db = self._get_resource(context, QosParam, id_)
             if qos_param:
                 qos_param_db.update(qos_param)
         return self._make_qos_param_dict(qos_param_db)
@@ -257,7 +257,7 @@ class QosDBManager(base_db.CommonDbMixin):
 
     def update_qos_classifier(self, context, id_, qos_classifier):
         with context.session.begin(subtransactions=True):
-            qos_classifier_db = self._get_resource(context, qos_classifier, id_)
+            qos_classifier_db = self._get_resource(context, QosClassifier, id_)
             if qos_classifier:
                 qos_classifier_db.update(qos_classifier)
         return self._make_qos_classifier_dict(qos_classifier_db)
