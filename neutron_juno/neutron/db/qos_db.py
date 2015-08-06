@@ -158,12 +158,31 @@ class QosDBManager(base_db.CommonDbMixin):
                 assoc = qry.filter_by(qos_id=qos_db['id'],
                                       qos_param_id=qpid).first()
                 if assoc:
-                    LOG.info(_("Association between %s and %s already exists") % (qos_id, qos_param_id))
+                    LOG.info(_("Association between %s and %s already exists") % (qos_db['id'], qpid))
                     continue
 
                 assoc = QosQosParamAssociation(qos_id=qos_db['id'],
                                                qos_param_id=qpid)
                 qos_db.qos_params.append(assoc)
+
+    def _set_classifiers_for_qos_param(context, qos_param_db,
+                                       qos_classifier_ids):
+        with context.session.begin(subtransactions=True):
+            qos_param_db.qos_classifiers = []
+            if not qos_classifier_ids:
+                return
+
+            for qcid in qos_classifier_ids:
+                qry = context.session.query(QosParamQosClassifierAssociation)
+                assoc = qry.filter_by(qos_param_id=qos_param_db['id'],
+                                      qos_classifier_id=qcid).first()
+                if assoc:
+                    LOG.info(_("Association between %s and %s already exists") % (qos_param_db['id'], qcid))
+                    continue
+
+                assoc = QosParamQosClassifierAssociation(qos_param_id=qos_param_db['id'],
+                                                         qos_classifier_id=qcid)
+                qos_param_db.qos_classifiers.append(assoc)
 
     # QoS
     def create_qos(self, context, value):
@@ -202,29 +221,16 @@ class QosDBManager(base_db.CommonDbMixin):
                                     filters=filters, fields=fields)
 
     # QoS Param
-    def create_qos_param(self, context, qos_param):
+    def create_qos_param(self, context, value):
         with context.session.begin(subtransactions=True):
-            row = QosParam(id=uuidutils.generate_uuid(),
-                                    tenant_id=qos_param.get('tenant_id'),
-                                    type=qos_param.get('type'),
-                                    policy=qos_param.get('policy'))
-            context.session.add(row)
+            qos_param_db = QosParam(id=uuidutils.generate_uuid(),
+                                    tenant_id=value.get('tenant_id'),
+                                    type=value.get('type'),
+                                    policy=value.get('policy'))
+            context.session.add(qos_param_db)
 
-            qos_classifiers_ids = qos_value.get('qos_classifiers')
-            with context.session.begin(subtransactions=True):
-                row.qos_params = []
-                if qos_classifiers_ids:
-                    for qcid in qos_classifiers_ids:
-                        qry = context.session.query(QosParamQosClassifierAssociation)
-                        assoc = qry.filter_by(qos_param_id=row['id'],
-                                              qos_classifier_id=qcid).first()
-                        if assoc:
-                            LOG.info(_("Association between %s and %s already exists") % (qos_param_id, qos_classifier_id))
-                            continue
-
-                        assoc = QosParamQosClassifierAssociation(qos_param_id=row['id'],
-                                                                 qos_classifier_id=qcid)
-                        row.qos_params.append(assoc)
+            self._set_classifiers_for_qos_param(context, qos_param_db,
+                                                value.get('qos_classifiers'))
 
         return self._make_qos_param_dict(qos_param_db)
 
