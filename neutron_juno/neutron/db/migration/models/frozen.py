@@ -1847,23 +1847,22 @@ class Qos(BASEV2, HasId, HasTenant):
                           sa.ForeignKey('ports.id', ondelete="CASCADE"))
     net_id = sa.Column(sa.String(36), nullable=False,
                        sa.ForeignKey('ports.id', ondelete="CASCADE"))
+    qos_params = orm.relationship('QosQosParamAssociation',
+                                  backref='qoss',
+                                  cascade='all, delete-orphan')
 
 
 class QosParam(BASEV2, HasId, HasTenant):
-    __tablename__ = 'qos_parameters'
+    __tablename__ = 'qos_params'
 
     type = sa.Column(sa.String(64), nullable=False)
     policy = sa.Column(sa.String(64), nullable=False)
-
-
-class QosParamsListEntry(BASEV2, HasId):
-    __tablename__ = 'qos_params_list_entries'
-
-    qos_id = sa.Column(sa.String(36), nullable=False,
-                       sa.ForeignKey('qoss.id', ondelete="CASCADE"))
-    qos_param_id = sa.Column(sa.String(36), nullable=False,
-                             sa.ForeignKey('qos_parameters.id',
-                                           ondelete="CASCADE")
+    qoss = orm.relationship('QosQosParamAssociation',
+                            backref='qos_params',
+                            cascade='all', lazy='joined')
+    qos_classifiers = orm.relationship('QosParamQosClassifierAssociation',
+                                        backref='qos_params',
+                                        cascade='all, delete-orphan')
 
 
 class QosClassifier(BASEV2, HasId, HasTenant):
@@ -1871,17 +1870,34 @@ class QosClassifier(BASEV2, HasId, HasTenant):
 
     type = sa.Column(sa.String(64), nullable=False)
     policy = sa.Column(sa.String(64), nullable=False)
+    qos_params = orm.relationship('QosParamQosClassifierAssociation',
+                                  backref='qos_classifiers',
+                                  cascade='all', lazy='joined')
 
 
-class QosClassifiersListEntry(BASEV2, HasId):
-    __tablename__ = 'qos_classifiers_list_entries'
+class QosQosParamAssociation(BASEV2):
+    __tablename__ = 'qos_qos_param_association'
+
+    qos_id = sa.Column(sa.String(36), nullable=False,
+                       sa.ForeignKey('qoss.id', ondelete="CASCADE"),
+                       primary_key=True)
+    qos_param_id = sa.Column(sa.String(36), nullable=False,
+                             sa.ForeignKey('qos_params.id',
+                                           ondelete="CASCADE"),
+                             primary_key=True)
+
+
+class QosParamQosClassifierAssociation(BASEV2):
+    __tablename__ = 'qos_param_qos_classifier_association'
 
     qos_param_id = sa.Column(sa.String(36), nullable=False,
-                             sa.ForeignKey('qos_parameters.id',
-                                           ondelete="CASCADE")
+                             sa.ForeignKey('qos_params.id',
+                                           ondelete="CASCADE"),
+                             primary_key=True)
     qos_classifier_id = sa.Column(sa.String(36), nullable=False,
                                   sa.ForeignKey('qos_classifiers.id',
-                                                ondelete="CASCADE"))
+                                                ondelete="CASCADE"),
+                                  primary_key=True)
 
 
 def get_metadata():
