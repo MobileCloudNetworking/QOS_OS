@@ -44,6 +44,7 @@ from neutron.db import extradhcpopt_db
 from neutron.db import models_v2
 from neutron.db import quota_db  # noqa
 from neutron.db import securitygroups_rpc_base as sg_db_rpc
+from neutron.db import qos_db
 from neutron.extensions import allowedaddresspairs as addr_pair
 from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import l3agentscheduler
@@ -1203,35 +1204,53 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
     # QoS extensions support:
     def create_qos(self, context, info):
         LOG.debug("create_qos: context=%s, info=%s" % (context, info,))
+        values = info.get('qos')
 
-        row = None
+        try:
+            LOG.debug("create_qos: values=%s" % (values,))
+            self.mechanism_manager.create_qos_precommit(values)
+        except ml2_exc.MechanismDriverError:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_("mech_manager.create_qos_precommit failed!"))
 
+        row = qos_db.QosDBManager().create_qos(context, values)
         LOG.info("create_qos: row=%s" % (row,))
         return row
 
     def delete_qos(self, context, id):
         LOG.debug("delete_qos: context=%s, id=%s" % (context, id,))
+        dbm = qos_db.QosDBManager()
+        values = dbm.get_qos(context, id)
+
+        try:
+            LOG.debug("delete_qos: values=%s" % (values,))
+            self.mechanism_manager.delete_qos_precommit(values)
+        except ml2_exc.MechanismDriverError:
+            LOG.error("mech_manager.delete_qos_precommit failed!")
+
+        dbm.delete_qos(context, id)
 
     def update_qos(self, context, id, info):
-        LOG.debug("update_qos: context=%s, id=%s, info=%s" % (context, id, info,))
-
-        row = None
+        LOG.debug("update_qos: context=%s, id=%s, info=%s" %
+                  (context, id, info,))
+        values = info.get('qos')
+        row = qos_db.QosDBManager().update_qos(context, id, values)
 
         LOG.info("update_qos: row=%s" % (row,))
         return row
 
     def get_qos(self, context, id, fields):
-        LOG.debug("get_qos: context=%s, id=%s, fields=%s" % (context, id, fields,))
-
-        row = None
+        LOG.debug("get_qos: context=%s, id=%s, fields=%s" %
+                  (context, id, fields,))
+        row = qos_db.QosDBManager().get_qos(context, id, fields)
 
         LOG.info("get_qos: row=%s" % (row,))
         return row
 
     def get_qoss(self, context, filters, fields):
-        LOG.debug("get_qoss: context=%s, filters=%s, fields=%s" % (context, filters, fields,))
-
-        rows = []
+        LOG.debug("get_qoss: context=%s, filters=%s, fields=%s" %
+                  (context, filters, fields,))
+        rows = qos_db.QosDBManager().get_qoss(context, filters, fields)
 
         LOG.info("get_qoss: rows=%s" % (rows,))
         return rows
@@ -1248,7 +1267,8 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
         LOG.debug("delete_qos_param: context=%s, id=%s" % (context, id,))
 
     def update_qos_param(self, context, id, info):
-        LOG.debug("update_qos_param: context=%s, id=%s, info=%s" % (context, id, info,))
+        LOG.debug("update_qos_param: context=%s, id=%s, info=%s" %
+                  (context, id, info,))
 
         row = None
 
@@ -1256,7 +1276,8 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
         return row
 
     def get_qos_param(self, context, id, fields):
-        LOG.debug("get_qos_param: context=%s, id=%s, fields=%s" % (context, id, fields,))
+        LOG.debug("get_qos_param: context=%s, id=%s, fields=%s" %
+                  (context, id, fields,))
 
         row = None
 
@@ -1264,7 +1285,8 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
         return row
 
     def get_qos_params(self, context, filters, fields):
-        LOG.debug("get_qos_params: context=%s, filters=%s, fields=%s" % (context, filters, fields,))
+        LOG.debug("get_qos_params: context=%s, filters=%s, fields=%s" %
+                  (context, filters, fields,))
 
         rows = []
 
@@ -1272,7 +1294,8 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
         return rows
 
     def create_qos_classifier(self, context, info):
-        LOG.debug("create_qos_classifier: context=%s, info=%s" % (context, info,))
+        LOG.debug("create_qos_classifier: context=%s, info=%s" %
+                  (context, info,))
 
         row = None
 
@@ -1283,7 +1306,8 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
         LOG.debug("delete_qos_classifier: context=%s, id=%s" % (context, id,))
 
     def update_qos_classifier(self, context, id, info):
-        LOG.debug("update_qos_classifier: context=%s, id=%s, info=%s" % (context, id, info,))
+        LOG.debug("update_qos_classifier: context=%s, id=%s, info=%s" %
+                  (context, id, info,))
 
         row = None
 
@@ -1291,7 +1315,8 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
         return row
 
     def get_qos_classifier(self, context, id, fields):
-        LOG.debug("get_qos_classifier: context=%s, id=%s, fields=%s" % (context, id, fields,))
+        LOG.debug("get_qos_classifier: context=%s, id=%s, fields=%s" %
+                  (context, id, fields,))
 
         row = None
 
@@ -1299,7 +1324,8 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
         return row
 
     def get_qos_classifiers(self, context, filters, fields):
-        LOG.debug("get_qos_classifiers: context=%s, filters=%s, fields=%s" % (context, filters, fields,))
+        LOG.debug("get_qos_classifiers: context=%s, filters=%s, fields=%s" %
+                  (context, filters, fields,))
 
         rows = []
 
