@@ -256,12 +256,12 @@ class QosDBManager(base_db.CommonDbMixin):
                                     filters=filters, fields=fields)
 
     # QoS Classifier
-    def create_qos_classifier(self, context, qos_classifier):
+    def create_qos_classifier(self, context, value):
         with context.session.begin(subtransactions=True):
             qos_classifier_db = QosClassifier(id=uuidutils.generate_uuid(),
-                                tenant_id=qos_classifier.get('tenant_id'),
-                                type=qos_classifier.get('type'),
-                                policy=qos_classifier.get('policy'))
+                                tenant_id=value.get('tenant_id'),
+                                type=value.get('type'),
+                                policy=value.get('policy'))
             context.session.add(qos_classifier_db)
         return self._make_qos_classifier_dict(qos_classifier_db)
 
