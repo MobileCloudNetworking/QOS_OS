@@ -1286,14 +1286,14 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
     def create_qos_param(self, context, info):
         return self.__create_qos_ext(
             "create_qos_param", context, info, 'qos-params',
-            self.mechanism_manager.create_qos_params_precommit,
+            self.mechanism_manager.create_qos_param_precommit,
             qos_db.QosDBManager().create_qos_param)
 
     def delete_qos_param(self, context, id):
         self.__delete_qos_ext(
             "delete_qos_param", context, id,
             qos_db.QosDBManager().get_qos_param,
-            self.mechanism_manager.delete_qos_params_precommit,
+            self.mechanism_manager.delete_qos_param_precommit,
             qos_db.QosDBManager().delete_qos_param)
 
     def update_qos_param(self, context, id, info):
