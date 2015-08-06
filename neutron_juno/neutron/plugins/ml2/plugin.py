@@ -1202,132 +1202,139 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
         return device
 
     # QoS extensions support:
-    def create_qos(self, context, info):
-        LOG.debug("create_qos: context=%s, info=%s" % (context, info,))
-        values = info.get('qos')
+    def __create_qos_ext(self, func, context, info, key, mm_func, db_func):
+        LOG.info("%s: context=%s, info=%s" % (func, context, info,))
+        values = info.get(key)
 
         try:
-            LOG.debug("create_qos: values=%s" % (values,))
-            self.mechanism_manager.create_qos_precommit(values)
+            LOG.debug("%s: values=%s" % (func, values,))
+            mm_func(values)
         except ml2_exc.MechanismDriverError:
             with excutils.save_and_reraise_exception():
-                LOG.error(_("mech_manager.create_qos_precommit failed!"))
+                LOG.error(_("%s failed!" % (mm_func,)))
 
-        row = qos_db.QosDBManager().create_qos(context, values)
-        LOG.info("create_qos: row=%s" % (row,))
+        row = db_func(context, values)
+        LOG.info("%s: row=%s" % (func, row,))
         return row
 
-    def delete_qos(self, context, id):
-        LOG.debug("delete_qos: context=%s, id=%s" % (context, id,))
-        dbm = qos_db.QosDBManager()
-        values = dbm.get_qos(context, id)
+    def __delete_qos_ext(self, func, context, id, db_get_func,
+                         mm_func, db_delete_func):
+        LOG.info("%s: context=%s, id=%s" % (func, context, id,))
+        values = db_get_func(context, id)
 
         try:
-            LOG.debug("delete_qos: values=%s" % (values,))
-            self.mechanism_manager.delete_qos_precommit(values)
+            LOG.debug("%s: values=%s" % (func, values,))
+            mm_func(values)
         except ml2_exc.MechanismDriverError:
-            LOG.error("mech_manager.delete_qos_precommit failed!")
+            LOG.error("%s failed!" % (mm_func,))
 
-        dbm.delete_qos(context, id)
+        db_delete_func(context, id)
+
+    def __update_qos_ext(self, func, context, id, info, key, db_func):
+        LOG.info("%s: context=%s, id=%s, info=%s" %
+                 (func, context, id, info,))
+        values = info.get(key)
+        row = db_func(context, id, values)
+
+        LOG.info("%s: row=%s" % (func, row,))
+        return row
+
+    def __get_qos_ext(self, func, context, id, fields, db_func):
+        LOG.info("%s: context=%s, id=%s, fields=%s" %
+                 (func, context, id, fields,))
+        row = db_func(context, id, fields)
+
+        LOG.info("%s: row=%s" % (func, row,))
+        return row
+
+    def __get_qoss_ext(self, func, context, filters, fields, db_func):
+        LOG.info("%s: context=%s, filters=%s, fields=%s" %
+                 (func, context, filters, fields,))
+        rows = db_func(context, filters, fields)
+
+        LOG.info("%s: rows=%s" % (func, rows,))
+        return rows
+
+    def create_qos(self, context, info):
+        return self.__create_qos_ext(
+            "create_qos", context, info, 'qos',
+            self.mechanism_manager.create_qos_precommit,
+            qos_db.QosDBManager().create_qos)
+
+    def delete_qos(self, context, id):
+        self.__delete_qos_ext(
+            "delete_qos", context, id,
+            qos_db.QosDBManager().get_qos,
+            self.mechanism_manager.delete_qos_precommit,
+            qos_db.QosDBManager().delete_qos)
 
     def update_qos(self, context, id, info):
-        LOG.debug("update_qos: context=%s, id=%s, info=%s" %
-                  (context, id, info,))
-        values = info.get('qos')
-        row = qos_db.QosDBManager().update_qos(context, id, values)
-
-        LOG.info("update_qos: row=%s" % (row,))
-        return row
+        return self.__update_qos_ext(
+            "update_qos", context, id, info, 'qos',
+            qos_db.QosDBManager().update_qos)
 
     def get_qos(self, context, id, fields):
-        LOG.debug("get_qos: context=%s, id=%s, fields=%s" %
-                  (context, id, fields,))
-        row = qos_db.QosDBManager().get_qos(context, id, fields)
-
-        LOG.info("get_qos: row=%s" % (row,))
-        return row
+        return self.__get_qos_ext(
+            "get_qos", context, id, fields,
+            qos_db.QosDBManager().get_qos)
 
     def get_qoss(self, context, filters, fields):
-        LOG.debug("get_qoss: context=%s, filters=%s, fields=%s" %
-                  (context, filters, fields,))
-        rows = qos_db.QosDBManager().get_qoss(context, filters, fields)
-
-        LOG.info("get_qoss: rows=%s" % (rows,))
-        return rows
+        return self.__get_qoss_ext(
+            "get_qoss", context, filters, fields,
+            qos_db.QosDBManager().get_qoss)
 
     def create_qos_param(self, context, info):
-        LOG.debug("create_qos_param: context=%s, info=%s" % (context, info,))
-
-        row = None
-
-        LOG.info("create_qos_param: row=%s" % (row,))
-        return row
+        return self.__create_qos_ext(
+            "create_qos_param", context, info, 'qos-params',
+            self.mechanism_manager.create_qos_params_precommit,
+            qos_db.QosDBManager().create_qos_param)
 
     def delete_qos_param(self, context, id):
-        LOG.debug("delete_qos_param: context=%s, id=%s" % (context, id,))
+        self.__delete_qos_ext(
+            "delete_qos_param", context, id,
+            qos_db.QosDBManager().get_qos_param,
+            self.mechanism_manager.delete_qos_params_precommit,
+            qos_db.QosDBManager().delete_qos_param)
 
     def update_qos_param(self, context, id, info):
-        LOG.debug("update_qos_param: context=%s, id=%s, info=%s" %
-                  (context, id, info,))
-
-        row = None
-
-        LOG.info("update_qos_param: row=%s" % (row,))
-        return row
+        return self.__update_qos_ext(
+            "update_qos_param", context, id, info, 'qos-params',
+            qos_db.QosDBManager().update_qos_param)
 
     def get_qos_param(self, context, id, fields):
-        LOG.debug("get_qos_param: context=%s, id=%s, fields=%s" %
-                  (context, id, fields,))
-
-        row = None
-
-        LOG.info("get_qos_param: row=%s" % (row,))
-        return row
+        return self.__get_qos_ext(
+            "get_qos_param", context, id, fields,
+            qos_db.QosDBManager().get_qos_param)
 
     def get_qos_params(self, context, filters, fields):
-        LOG.debug("get_qos_params: context=%s, filters=%s, fields=%s" %
-                  (context, filters, fields,))
-
-        rows = []
-
-        LOG.info("get_qos_params: rows=%s" % (rows,))
-        return rows
+        return self.__get_qoss_ext(
+            "get_qos_params", context, filters, fields,
+            qos_db.QosDBManager().get_qos_params)
 
     def create_qos_classifier(self, context, info):
-        LOG.debug("create_qos_classifier: context=%s, info=%s" %
-                  (context, info,))
-
-        row = None
-
-        LOG.info("create_qos_classifier: row=%s" % (row,))
-        return row
+        return self.__create_qos_ext(
+            "create_qos_classifier", context, info, 'qos-classifier',
+            self.mechanism_manager.create_qos_classifier_precommit,
+            qos_db.QosDBManager().create_qos_classifier)
 
     def delete_qos_classifier(self, context, id):
-        LOG.debug("delete_qos_classifier: context=%s, id=%s" % (context, id,))
+        self.__delete_qos_ext(
+            "delete_qos_classifier", context, id,
+            qos_db.QosDBManager().get_qos_classifier,
+            self.mechanism_manager.delete_qos_classifier_precommit,
+            qos_db.QosDBManager().delete_qos_classifier)
 
     def update_qos_classifier(self, context, id, info):
-        LOG.debug("update_qos_classifier: context=%s, id=%s, info=%s" %
-                  (context, id, info,))
-
-        row = None
-
-        LOG.info("update_qos_classifier: row=%s" % (row,))
-        return row
+        return self.__update_qos_ext(
+            "update_qos_classifier", context, id, info, 'qos-classifier',
+            qos_db.QosDBManager().update_qos_classifier)
 
     def get_qos_classifier(self, context, id, fields):
-        LOG.debug("get_qos_classifier: context=%s, id=%s, fields=%s" %
-                  (context, id, fields,))
-
-        row = None
-
-        LOG.info("get_qos_classifier: row=%s" % (row,))
-        return row
+        return self.__get_qos_ext(
+            "get_qos_classifier", context, id, fields,
+            qos_db.QosDBManager().get_qos_classifier)
 
     def get_qos_classifiers(self, context, filters, fields):
-        LOG.debug("get_qos_classifiers: context=%s, filters=%s, fields=%s" %
-                  (context, filters, fields,))
-
-        rows = []
-
-        LOG.info("get_qos_classifiers: rows=%s" % (rows,))
-        return rows
+        return self.__get_qoss_ext(
+            "get_qos_classifiers", context, filters, fields,
+            qos_db.QosDBManager().get_qos_classifiers)
