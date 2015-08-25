@@ -34,12 +34,15 @@ class Qos(model_base.BASEV2, models_v2.HasId, models_v2.HasTenant):
     __tablename__ = 'qoss'
 
     type = sa.Column(sa.String(64), nullable=False)
-    ingress_id = sa.Column(sa.String(36), nullable=False,
-                           sa.ForeignKey('ports.id', ondelete="CASCADE"))
-    egress_id = sa.Column(sa.String(36), nullable=False,
-                          sa.ForeignKey('ports.id', ondelete="CASCADE"))
-    net_id = sa.Column(sa.String(36), nullable=False,
-                       sa.ForeignKey('ports.id', ondelete="CASCADE"))
+    ingress_id = sa.Column(sa.String(36),
+                           sa.ForeignKey('ports.id', ondelete="CASCADE"),
+                           nullable=False)
+    egress_id = sa.Column(sa.String(36),
+                          sa.ForeignKey('ports.id', ondelete="CASCADE"),
+                          nullable=False)
+    net_id = sa.Column(sa.String(36),
+                       sa.ForeignKey('ports.id', ondelete="CASCADE"),
+                       nullable=False)
     qos_params = orm.relationship('QosQosParamAssociation',
                                   backref='qoss',
                                   cascade='all, delete-orphan')
@@ -78,12 +81,14 @@ class QosQosParamAssociation(model_base.BASEV2):
     """Represents a QoS parameter object contained by a QoS object"""
     __tablename__ = 'qos_qos_param_association'
 
-    qos_id = sa.Column(sa.String(36), nullable=False,
+    qos_id = sa.Column(sa.String(36),
                        sa.ForeignKey('qoss.id', ondelete="CASCADE"),
+                       nullable=False,
                        primary_key=True)
-    qos_param_id = sa.Column(sa.String(36), nullable=False,
+    qos_param_id = sa.Column(sa.String(36),
                              sa.ForeignKey('qos_params.id',
                                            ondelete="CASCADE"),
+                             nullable=False,
                              primary_key=True)
 
 
@@ -93,13 +98,15 @@ class QosParamQosClassifierAssociation(model_base.BASEV2):
     """Represents a QoS classifier object contained bt a QoS parameter object"""
     __tablename__ = 'qos_param_qos_classifier_association'
 
-    qos_param_id = sa.Column(sa.String(36), nullable=False,
+    qos_param_id = sa.Column(sa.String(36),
                              sa.ForeignKey('qos_params.id',
                                            ondelete="CASCADE"),
+                             nullable=False,
                              primary_key=True)
-    qos_classifier_id = sa.Column(sa.String(36), nullable=False,
+    qos_classifier_id = sa.Column(sa.String(36),
                                   sa.ForeignKey('qos_classifiers.id',
                                                 ondelete="CASCADE"),
+                                  nullable=False,
                                   primary_key=True)
 
 
