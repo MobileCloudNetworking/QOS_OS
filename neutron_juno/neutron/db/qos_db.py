@@ -14,6 +14,7 @@
 #    under the License.
 
 import sqlalchemy as sa
+from sqlalchemy import orm
 from sqlalchemy.orm import exc
 
 from neutron.db import common_db_mixin as base_db
@@ -221,7 +222,7 @@ class QosDBManager(base_db.CommonDbMixin):
     def get_qos(self, context, id_, fields=None):
         qos_db = self._get_resource(context, Qos, id_)
         return self._make_qos_dict(qos_db, fields)
-    
+
     def get_qoss(self, context, filters=None, fields=None):
         return self._get_collection(context, Qos,
                                     self._make_qos_dict,
