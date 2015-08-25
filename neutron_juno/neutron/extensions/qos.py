@@ -35,7 +35,7 @@ class QosClassifierNotFound(qexception.NotFound):
 
 # define resource attribute map four every type of resource
 RESOURCE_ATTRIBUTE_MAP_QOS = {
-    'qos': {
+    'qoss': {
         'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},
@@ -68,7 +68,7 @@ RESOURCE_ATTRIBUTE_MAP_QOS = {
 }
 
 RESOURCE_ATTRIBUTE_MAP_QOS_PARAM = {
-    'qos_param': {
+    'qos_params': {
 	'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},
@@ -93,7 +93,7 @@ RESOURCE_ATTRIBUTE_MAP_QOS_PARAM = {
 }
 
 RESOURCE_ATTRIBUTE_MAP_QOS_CLASSIFIER = {
-    'qos_classifier': {
+    'qos_classifiers': {
 	'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},
@@ -129,7 +129,7 @@ class Qoss(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_namespace(cls):
-        return "http://wiki.openstack.org/Neutron/qos/API_1.0"
+        return "http://wiki.openstack.org/Neutron/Qoss/API_1.0"
 
     @classmethod
     def get_updated(cls):
@@ -168,7 +168,7 @@ class QosParams(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_namespace(cls):
-        return "http://wiki.openstack.org/Neutron/qos_param/API_1.0"
+        return "http://wiki.openstack.org/Neutron/QosParams/API_1.0"
 
     @classmethod
     def get_updated(cls):
@@ -207,7 +207,7 @@ class QosClassifiers(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_namespace(cls):
-        return "http://wiki.openstack.org/Neutron/qos/API_1.0"
+        return "http://wiki.openstack.org/Neutron/QosClassifiers/API_1.0"
 
     @classmethod
     def get_updated(cls):

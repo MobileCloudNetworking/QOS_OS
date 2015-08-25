@@ -421,14 +421,12 @@ class Client(ClientBase):
     net_partitions_path = "/net-partitions"
     net_partition_path = "/net-partitions/%s"
 
-    l2vlinks_path = "/l2vlinks"
-    l2vlink_path = "/l2vlinks/%s"
     qoss_path = "/qoss"
-    qos_path = "/qos/%s"
+    qos_path = "/qoss/%s"
     qos_params_path = "/qos_params"
-    qos_param_path = "/qos_param/%s"
+    qos_param_path = "/qos_params/%s"
     qos_classifiers_path = "/qos_classifiers"
-    qos_classifier_path = "/qos_classifier/%s"
+    qos_classifier_path = "/qos_classifiers/%s"
 
     # API has no way to report plurals, so we have to hard code them
     EXTED_PLURALS = {'routers': 'router',
