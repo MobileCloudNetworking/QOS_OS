@@ -1881,8 +1881,9 @@ class QosClassifier(BASEV2, HasId, HasTenant):
 class QosQosParamAssociation(BASEV2):
     __tablename__ = 'qos_qos_param_association'
 
-    qos_id = sa.Column(sa.String(36), nullable=False,
+    qos_id = sa.Column(sa.String(36),
                        sa.ForeignKey('qoss.id', ondelete="CASCADE"),
+                       nullable=False,
                        primary_key=True)
     qos_param_id = sa.Column(sa.String(36),
                              sa.ForeignKey('qos_params.id',
