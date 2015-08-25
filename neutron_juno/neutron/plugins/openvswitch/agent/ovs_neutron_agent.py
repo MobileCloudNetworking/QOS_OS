@@ -286,7 +286,8 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                      [topics.NETWORK, topics.DELETE],
                      [constants.TUNNEL, topics.UPDATE],
                      [topics.SECURITY_GROUP, topics.UPDATE],
-                     [topics.DVR, topics.UPDATE]]
+                     [topics.DVR, topics.UPDATE],
+                     [topics.QOS, topics.UPDATE]]
         if self.l2_pop:
             consumers.append([topics.L2POPULATION,
                               topics.UPDATE, cfg.CONF.host])
@@ -324,6 +325,10 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
         # are processed in the same order as the relevant API requests
         self.updated_ports.add(port['id'])
         LOG.debug(_("port_update message processed for port %s"), port['id'])
+
+    def qos_update(self, context, **kwargs):
+        info = kwargs.get('info')
+        LOG.debug(_("qos_update message processed for qos %s: %s"), info['id'], str(info))
 
     def tunnel_update(self, context, **kwargs):
         LOG.debug(_("tunnel_update received"))

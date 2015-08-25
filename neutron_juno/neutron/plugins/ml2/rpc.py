@@ -200,6 +200,9 @@ class AgentNotifierApi(n_rpc.RpcProxy,
         self.topic_port_update = topics.get_topic_name(topic,
                                                        topics.PORT,
                                                        topics.UPDATE)
+        self.topic_qos_update = topics.get_topic_name(topic,
+                                                      topics.QOS,
+                                                      topics.UPDATE)
 
     def network_delete(self, context, network_id):
         self.fanout_cast(context,
@@ -216,3 +219,10 @@ class AgentNotifierApi(n_rpc.RpcProxy,
                                        segmentation_id=segmentation_id,
                                        physical_network=physical_network),
                          topic=self.topic_port_update)
+
+    def qos_update(self, context, info):
+        self.fanout_cast(context,
+                         self.make_msg('qos_update',
+                                       info=info,
+                                      ),
+                         topic=self.topic_qos_update)

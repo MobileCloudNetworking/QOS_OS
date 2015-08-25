@@ -1256,10 +1256,19 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
         return rows
 
     def create_qos(self, context, info):
-        return self.__create_qos_ext(
+        row = self.__create_qos_ext(
             "create_qos", context, info, 'qos',
             self.mechanism_manager.create_qos_precommit,
             qos_db.QosDBManager().create_qos)
+
+        try:
+            self.notifier.qos_update(context._plugin_context, info)
+        except ml2_exc.MechanismDriverError:
+            LOG.error(_("Agent update failed, deleting qos '%s'"), row['id'])
+            self.delete_qos(context, row['id'])
+            return None
+
+        return row
 
     def delete_qos(self, context, id):
         self.__delete_qos_ext(
