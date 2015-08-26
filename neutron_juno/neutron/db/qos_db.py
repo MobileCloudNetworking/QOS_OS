@@ -157,7 +157,7 @@ class QosDBManager(base_db.CommonDbMixin):
                'policy': qos_classifier['policy']}
         return self._fields(res, fields)
 
-    def _set_params_for_qos(context, qos_db, qos_param_ids):
+    def _set_params_for_qos(self, context, qos_db, qos_param_ids):
         with context.session.begin(subtransactions=True):
             qos_db.qos_params = []
             if not qos_param_ids:
@@ -175,7 +175,7 @@ class QosDBManager(base_db.CommonDbMixin):
                                                qos_param_id=qpid)
                 qos_db.qos_params.append(assoc)
 
-    def _set_classifiers_for_qos_param(context, qos_param_db,
+    def _set_classifiers_for_qos_param(self, context, qos_param_db,
                                        qos_classifier_ids):
         with context.session.begin(subtransactions=True):
             qos_param_db.qos_classifiers = []
