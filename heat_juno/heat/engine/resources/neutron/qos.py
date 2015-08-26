@@ -26,7 +26,7 @@ class qos(neutron.NeutronResource):
     PROPERTIES = (
         TYPE, INGRESS_ID, EGRESS_ID, NET_ID, QOS_PARAMETERS
     ) = (
-        'type', 'ingress_id', 'egress_id', 'net_id', 'qos_parameters'
+        'type', 'ingress_id', 'egress_id', 'network_id', 'qos_parameters'
     )
 
     properties_schema = {
@@ -54,7 +54,7 @@ class qos(neutron.NeutronResource):
         NET_ID: properties.Schema(
             properties.Schema.STRING,
             _('Network identifier.'),
-            required=False,
+            required=True,
             update_allowed=True
         ),
         QOS_PARAMETERS: properties.Schema(
@@ -75,10 +75,9 @@ class qos(neutron.NeutronResource):
             'type': self.properties[self.TYPE],
             'ingress_id': self.properties[self.INGRESS_ID],
             'egress_id': self.properties[self.EGRESS_ID],
+            'net_id': self.properties[self.NET_ID]
             'qos_params': self.properties[self.QOS_PARAMETERS]
         }
-        if self.properties[self.NET_ID]:
-            info['net_id'] = self.properties[self.NET_ID]
 
         req = {'qos': info}
 

@@ -61,12 +61,13 @@ resources:
       router_id: { get_resource: router }
       subnet_id: { get_resource: test_subnet_1 }
 
-  qos:
+  qos1:
     type: OS::Neutron::qos
     properties:
       type: unidir
       ingress_id: { get_resource: host1_port }
       egress_id: { get_resource: host2_port }
+      network_id: { get_resource: test_network_1 }
       qos_parameters: [ get_resource: qos_param1, get_resource: qos_param2 ]
 
   qos_param1:
