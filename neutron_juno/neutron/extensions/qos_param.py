@@ -30,7 +30,7 @@ RESOURCE_ATTRIBUTE_MAP_QOS_PARAM = {
                'is_visible': True, 'primary_key': True},
 
         'tenant_id': {'allow_post': True, 'allow_put': False,
-                      'validate': {'type:uuid': None},
+                      'validate': {'type:string': None},
                       'required_by_policy': True, 'is_visible': True},
 
         'type': {'allow_post': True, 'allow_put': True,
