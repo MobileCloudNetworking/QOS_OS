@@ -113,7 +113,7 @@ RESOURCE_ATTRIBUTE_MAP_QOS_CLASSIFIER = {
 }
 
 
-class Qoss(extensions.ExtensionDescriptor):
+class Qos(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_name(cls):
@@ -152,7 +152,7 @@ class Qoss(extensions.ExtensionDescriptor):
             attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP_QOS)
 
 
-class QosParams(extensions.ExtensionDescriptor):
+class QosParam(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_name(cls):
@@ -191,7 +191,7 @@ class QosParams(extensions.ExtensionDescriptor):
             attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP_QOS_PARAM)
 
 
-class QosClassifiers(extensions.ExtensionDescriptor):
+class QosClassifier(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_name(cls):
