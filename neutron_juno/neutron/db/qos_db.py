@@ -21,6 +21,8 @@ from neutron.db import common_db_mixin as base_db
 from neutron.db import model_base
 from neutron.db import models_v2
 import neutron.extensions.qos
+import neutron.extensions.qos_param
+import neutron.extensions.qos_classifier
 from neutron.openstack.common import excutils
 from neutron.openstack.common import log as logging
 from neutron.openstack.common import uuidutils
@@ -123,9 +125,9 @@ class QosDBManager(base_db.CommonDbMixin):
                 if issubclass(model, Qos):
                     raise neutron.extensions.qos.QosNotFound(id=id_)
                 elif issubclass(model, QosParam):
-                    raise neutron.extensions.qos.QosParamNotFound(id=id_)
+                    raise neutron.extensions.qos_param.QosParamNotFound(id=id_)
                 elif issubclass(model, QosClassifier):
-                    raise neutron.extensions.qos.QosClassifierNotFound(id=id_)
+                    raise neutron.extensions.qos_classifier.QosClassifierNotFound(id=id_)
                 ctx.reraise = True
 
     def _make_qos_dict(self, row, fields=None):

@@ -19,15 +19,12 @@ from neutron.api.v2 import resource_helper
 
 LOG = logging.getLogger(__name__)
 
-
-# Exception classes for the three QoS resources
-class QosNotFound(qexception.NotFound):
-    message = _("qos %(id)s not found")
+class QosParamNotFound(qexception.NotFound):
+    message = _("qos_param %(id)s not found")
 
 
-# define resource attribute map four every type of resource
-RESOURCE_ATTRIBUTE_MAP_QOS = {
-    'qoss': {
+RESOURCE_ATTRIBUTE_MAP_QOS_PARAM = {
+    'qos_params': {
         'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'primary_key': True},
@@ -40,61 +37,53 @@ RESOURCE_ATTRIBUTE_MAP_QOS = {
                  'validate': {'type:string': None},
                  'is_visible': True, 'default': ''},
 
-        'ingress_id': {'allow_post': True, 'allow_put': True,
-                       'validate': {'type:uuid': None},
-                       'is_visible': True, 'default': ''},
+        'policy': {'allow_post': True, 'allow_put': True,
+                   'validate': {'type:string': None},
+                   'is_visible': True, 'default': ''},
 
-        'egress_id': {'allow_post': True, 'allow_put': True,
-                      'validate': {'type:uuid': None},
-                      'is_visible': True, 'default': ''},
-
-        'net_id': {'allow_post': True, 'allow_put': False,
-                   'validate': {'type:uuid': None},
-                   'required_by_policy': True, 'is_visible': True},
-
-        'qos_params': {'allow_post': True, 'allow_put': True,
-                       'validate': {'type:uuid_list': None},
-                       'convert_to': attr.convert_none_to_empty_list,
-                       'default': None, 'is_visible': True}
+        'qos_classifiers': {'allow_post': True, 'allow_put': True,
+                           'validate': {'type:uuid_list': None},
+                           'convert_to': attr.convert_none_to_empty_list,
+                           'default': None, 'is_visible': True}
     }
 }
 
 
-class Qos(extensions.ExtensionDescriptor):
+class Qos_param(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_name(cls):
-        return "qos service"
+        return "qos_param service"
 
     @classmethod
     def get_alias(cls):
-        return "qos"
+        return "qos_param"
 
     @classmethod
     def get_description(cls):
-        return "Extension for Quality Of Service"
+        return "Extension for Quality Of Service Parameters"
 
     @classmethod
     def get_namespace(cls):
-        return "http://wiki.openstack.org/Neutron/Qoss/API_1.0"
+        return "http://wiki.openstack.org/Neutron/QosParams/API_1.0"
 
     @classmethod
     def get_updated(cls):
         return "2015-07-17T90:00:00-00:00"
 
     def get_extended_resources(self, version):
-        return RESOURCE_ATTRIBUTE_MAP_QOS if version == "2.0" else {}
+        return RESOURCE_ATTRIBUTE_MAP_QOS_PARAM if version == "2.0" else {}
 
     @classmethod
     def get_resources(cls):
         plural_mappings = resource_helper.build_plural_mappings(
-            {}, RESOURCE_ATTRIBUTE_MAP_QOS)
+            {}, RESOURCE_ATTRIBUTE_MAP_QOS_PARAM)
         attr.PLURALS.update(plural_mappings)
         return resource_helper.build_resource_info(plural_mappings,
-                                                   RESOURCE_ATTRIBUTE_MAP_QOS,
+                                                   RESOURCE_ATTRIBUTE_MAP_QOS_PARAM,
                                                    None)
 
     def update_attributes_map(self, attributes):
-        super(Qoss, self).update_attributes_map(
-            attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP_QOS)
+        super(QosParams, self).update_attributes_map(
+            attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP_QOS_PARAM)
 
