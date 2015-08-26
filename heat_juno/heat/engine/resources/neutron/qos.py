@@ -75,7 +75,7 @@ class qos(neutron.NeutronResource):
             'type': self.properties[self.TYPE],
             'ingress_id': self.properties[self.INGRESS_ID],
             'egress_id': self.properties[self.EGRESS_ID],
-            'net_id': self.properties[self.NET_ID]
+            'net_id': self.properties[self.NET_ID],
             'qos_params': self.properties[self.QOS_PARAMETERS]
         }
 
