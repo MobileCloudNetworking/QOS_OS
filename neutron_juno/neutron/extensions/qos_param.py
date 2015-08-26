@@ -65,7 +65,7 @@ class Qos_param(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_namespace(cls):
-        return "http://wiki.openstack.org/Neutron/QosParams/API_1.0"
+        return "http://wiki.openstack.org/Neutron/Qos_param/API_1.0"
 
     @classmethod
     def get_updated(cls):
@@ -84,6 +84,6 @@ class Qos_param(extensions.ExtensionDescriptor):
                                                    None)
 
     def update_attributes_map(self, attributes):
-        super(QosParams, self).update_attributes_map(
+        super(Qos_param, self).update_attributes_map(
             attributes, extension_attrs_map=RESOURCE_ATTRIBUTE_MAP_QOS_PARAM)
 
