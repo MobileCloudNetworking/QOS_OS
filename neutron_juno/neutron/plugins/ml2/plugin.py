@@ -1256,14 +1256,14 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
         LOG.info("%s: rows=%s" % (func, rows,))
         return rows
 
-    def create_qos(self, context, info):
+    def create_qos(self, context, qos):
         row = self.__create_qos_ext(
-            "create_qos", context, info, 'qos',
+            "create_qos", context, qos, 'qos',
             self.mechanism_manager.create_qos_precommit,
             qos_db.QosDBManager().create_qos)
 
         try:
-            self.notifier.qos_update(context._plugin_context, info)
+            self.notifier.qos_update(context._plugin_context, qos)
         except ml2_exc.MechanismDriverError:
             LOG.error(_("Agent update failed, deleting qos '%s'"), row['id'])
             self.delete_qos(context, row['id'])
@@ -1278,9 +1278,9 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
             self.mechanism_manager.delete_qos_precommit,
             qos_db.QosDBManager().delete_qos)
 
-    def update_qos(self, context, id, info):
+    def update_qos(self, context, id, qos):
         return self.__update_qos_ext(
-            "update_qos", context, id, info, 'qos',
+            "update_qos", context, id, qos, 'qos',
             qos_db.QosDBManager().update_qos)
 
     def get_qos(self, context, id, fields):
@@ -1293,9 +1293,9 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
             "get_qoss", context, filters, fields,
             qos_db.QosDBManager().get_qoss)
 
-    def create_qos_param(self, context, info):
+    def create_qos_param(self, context, qos_param):
         return self.__create_qos_ext(
-            "create_qos_param", context, info, 'qos_param',
+            "create_qos_param", context, qos_param, 'qos_param',
             self.mechanism_manager.create_qos_param_precommit,
             qos_db.QosDBManager().create_qos_param)
 
@@ -1306,9 +1306,9 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
             self.mechanism_manager.delete_qos_param_precommit,
             qos_db.QosDBManager().delete_qos_param)
 
-    def update_qos_param(self, context, id, info):
+    def update_qos_param(self, context, id, qos_param):
         return self.__update_qos_ext(
-            "update_qos_param", context, id, info, 'qos_param',
+            "update_qos_param", context, id, qos_param, 'qos_param',
             qos_db.QosDBManager().update_qos_param)
 
     def get_qos_param(self, context, id, fields):
@@ -1321,9 +1321,9 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
             "get_qos_params", context, filters, fields,
             qos_db.QosDBManager().get_qos_params)
 
-    def create_qos_classifier(self, context, info):
+    def create_qos_classifier(self, context, qos_classifier):
         return self.__create_qos_ext(
-            "create_qos_classifier", context, info, 'qos_classifier',
+            "create_qos_classifier", context, qos_classifier, 'qos_classifier',
             self.mechanism_manager.create_qos_classifier_precommit,
             qos_db.QosDBManager().create_qos_classifier)
 
@@ -1334,9 +1334,9 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
             self.mechanism_manager.delete_qos_classifier_precommit,
             qos_db.QosDBManager().delete_qos_classifier)
 
-    def update_qos_classifier(self, context, id, info):
+    def update_qos_classifier(self, context, id, qos_classifier):
         return self.__update_qos_ext(
-            "update_qos_classifier", context, id, info, 'qos_classifier',
+            "update_qos_classifier", context, id, qos_classifier, 'qos_classifier',
             qos_db.QosDBManager().update_qos_classifier)
 
     def get_qos_classifier(self, context, id, fields):
