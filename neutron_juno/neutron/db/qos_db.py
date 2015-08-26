@@ -131,7 +131,7 @@ class QosDBManager(base_db.CommonDbMixin):
                 ctx.reraise = True
 
     def _make_qos_dict(self, row, fields=None):
-        qos_params = [x['id'] for x in row['qos_params']]
+        qos_params = [x['qos_param_id'] for x in row['qos_params']]
         res = {'id': row['id'],
                'tenant_id': row['tenant_id'],
                'type': row['type'],
@@ -142,7 +142,7 @@ class QosDBManager(base_db.CommonDbMixin):
         return self._fields(res, fields)
 
     def _make_qos_param_dict(self, qos_param, fields=None):
-        qos_classifiers = [x['id'] for x in qos_param['qos_classifiers']]
+        qos_classifiers = [x['qos_classifier_id'] for x in qos_param['qos_classifiers']]
         res = {'id': qos_param['id'],
                'tenant_id': qos_param['tenant_id'],
                'type': qos_param['type'],
