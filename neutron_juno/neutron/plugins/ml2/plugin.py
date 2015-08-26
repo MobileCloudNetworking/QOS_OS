@@ -105,7 +105,8 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
                                     "quotas", "security-group", "agent",
                                     "dhcp_agent_scheduler",
                                     "multi-provider", "allowed-address-pairs",
-                                    "extra_dhcp_opt"]
+                                    "extra_dhcp_opt", "qos_classifier",
+                                    "qos_param", "qos"]
 
     @property
     def supported_extension_aliases(self):
