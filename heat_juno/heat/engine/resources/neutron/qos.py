@@ -149,12 +149,12 @@ class qos_param(neutron.NeutronResource):
             'policy': self.properties[self.POLICY],
             'qos_classifiers': self.properties[self.QOS_CLASSIFIERS]
         }
-        req = {'qos-params': info}
+        req = {'qos_param': info}
 
         LOG.debug("request=%s" % req)
         resp = self.neutron().create_qos_param(req)
         LOG.debug("resp=%s" % (resp,))
-        self.resource_id_set(resp.get('qos-params').get('id'))
+        self.resource_id_set(resp.get('qos_param').get('id'))
 
         LOG.info("QOS-PARAM successfully created: rID=%s" %
                  (self.resource_id,))
@@ -209,12 +209,12 @@ class qos_classifier(neutron.NeutronResource):
 
         info = {'type': self.properties[self.TYPE],
                 'policy': self.properties[self.POLICY]}
-        req = {'qos-classifier': info}
+        req = {'qos_classifier': info}
 
         LOG.debug("request=%s" % req)
         resp = self.neutron().create_qos_classifier(req)
         LOG.debug("resp=%s" % (resp,))
-        self.resource_id_set(resp.get('qos-classifier').get('id'))
+        self.resource_id_set(resp.get('qos_classifier').get('id'))
 
         LOG.info("QOS-CLASSIFIER successfully created: rID=%s" %
                  (self.resource_id,))

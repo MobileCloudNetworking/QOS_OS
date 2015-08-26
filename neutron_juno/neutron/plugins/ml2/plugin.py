@@ -1295,7 +1295,7 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
 
     def create_qos_param(self, context, info):
         return self.__create_qos_ext(
-            "create_qos_param", context, info, 'qos-params',
+            "create_qos_param", context, info, 'qos_param',
             self.mechanism_manager.create_qos_param_precommit,
             qos_db.QosDBManager().create_qos_param)
 
@@ -1308,7 +1308,7 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
 
     def update_qos_param(self, context, id, info):
         return self.__update_qos_ext(
-            "update_qos_param", context, id, info, 'qos-params',
+            "update_qos_param", context, id, info, 'qos_param',
             qos_db.QosDBManager().update_qos_param)
 
     def get_qos_param(self, context, id, fields):
@@ -1323,7 +1323,7 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
 
     def create_qos_classifier(self, context, info):
         return self.__create_qos_ext(
-            "create_qos_classifier", context, info, 'qos-classifier',
+            "create_qos_classifier", context, info, 'qos_classifier',
             self.mechanism_manager.create_qos_classifier_precommit,
             qos_db.QosDBManager().create_qos_classifier)
 
@@ -1336,7 +1336,7 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
 
     def update_qos_classifier(self, context, id, info):
         return self.__update_qos_ext(
-            "update_qos_classifier", context, id, info, 'qos-classifier',
+            "update_qos_classifier", context, id, info, 'qos_classifier',
             qos_db.QosDBManager().update_qos_classifier)
 
     def get_qos_classifier(self, context, id, fields):
