@@ -1848,7 +1848,7 @@ class Qos(BASEV2, HasId, HasTenant):
                           sa.ForeignKey('ports.id', ondelete="CASCADE"),
                           nullable=False)
     net_id = sa.Column(sa.String(36),
-                       sa.ForeignKey('ports.id', ondelete="CASCADE"),
+                       sa.ForeignKey('networks.id', ondelete="CASCADE"),
                        nullable=False)
     qos_params = orm.relationship('QosQosParamAssociation',
                                   backref='qoss',
