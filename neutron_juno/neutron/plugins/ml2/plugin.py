@@ -1263,10 +1263,10 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
             qos_db.QosDBManager().create_qos)
 
         try:
-            self.notifier.qos_update(context._plugin_context, qos)
+            self.notifier.qos_update(context, qos)
         except ml2_exc.MechanismDriverError:
-            LOG.error(_("Agent update failed, deleting qos '%s'"), row['id'])
-            self.delete_qos(context, row['id'])
+            LOG.error(_("Agent update failed, deleting qos '%s'"), qos['id'])
+            self.delete_qos(context, qos['id'])
             return None
 
         return row
