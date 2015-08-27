@@ -328,7 +328,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
     def qos_update(self, context, **kwargs):
         info = kwargs.get('info')
-        LOG.debug(_("qos_update message processed for qos %s: %s"), info['id'], str(info))
+        LOG.debug(_("qos_update message processed %s"), str(info))
 
     def tunnel_update(self, context, **kwargs):
         LOG.debug(_("tunnel_update received"))
