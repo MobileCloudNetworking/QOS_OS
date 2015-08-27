@@ -46,7 +46,7 @@ resources:
   host2:
     type: OS::Nova::Server
     properties:
-      name: host1
+      name: host2
       image: cirros-0.3.2-x86_64-uec
       flavor: m1.tiny
       networks:
