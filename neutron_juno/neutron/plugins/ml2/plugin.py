@@ -1274,10 +1274,12 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
              }
 
         for qpid in qos['qos']['qos_params']:
-            qu['qos_params'].append(qos_db.QosDBManager().get_qos_param(qpid))
+            qu['qos_params'].append(qos_db.QosDBManager().
+                                    get_qos_param(context, qpid))
             qcs = []
             for qcid in qu['qos_params'][-1]['qos_classifiers']:
-                qcs.append(qos_db.QosDBManager().get_qos_classifier(qcid))
+                qcs.append(qos_db.QosDBManager().
+                           get_qos_classifier(context, qcid))
             qu['qos_params'][-1]['qos_classifiers'] = qcs
 
         try:
