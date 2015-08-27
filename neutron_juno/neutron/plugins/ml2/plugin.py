@@ -1257,17 +1257,36 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
         return rows
 
     def create_qos(self, context, qos):
+        # Insert the new resource in the DB
         row = self.__create_qos_ext(
             "create_qos", context, qos, 'qos',
             self.mechanism_manager.create_qos_precommit,
             qos_db.QosDBManager().create_qos)
 
+        # Build the qos object tree, expanding qos_params
+        # and qos_classifiers uuids
+        qu = {'id': row['id'],
+              'ingress_id': qos['qos']['ingress_id'],
+              'egress_id' : qos['qos']['egress_id'],
+              'type': qos['qos']['type'],
+              'net_id': qos['qos']['net_id'],
+              'qos_params': []
+             }
+
+        for qpid in qos['qos']['qos_params']:
+            qu['qos_params'].append(qos_db.QosDBManager().get_qos_param(qpid))
+            qcs = []
+            for qcid in qu['qos_params'][-1]['qos_classifiers']:
+                qcs.append(qos_db.QosDBManager().get_qos_classifier(qcid))
+            qu['qos_params'][-1]['qos_classifiers'] = qcs
+
         try:
             LOG.info("Trying to notify agent about QOS creation")
-            self.notifier.qos_update(context, qos)
+            self.notifier.qos_update(context, qu)
         except ml2_exc.MechanismDriverError:
-            LOG.error(_("Agent update failed, deleting qos '%s'"), qos['id'])
-            self.delete_qos(context, qos['id'])
+            LOG.error(_("Agent update failed, deleting qos with id '%s'"),
+                      row['id'])
+            self.delete_qos(context, row['id'])
             return None
 
         LOG.info("Agent notified successfully bout QOS creation")
