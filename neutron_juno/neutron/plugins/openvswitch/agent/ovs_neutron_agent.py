@@ -329,7 +329,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
     def qos_update(self, context, **kwargs):
         qos = kwargs.get('info')
-        LOG.debug(_("qos_update message receuved: %s"), str(qos))
+        LOG.debug(_("qos_update message received: %s"), str(qos))
 
         inif = 'qvo' + qos['ingress_id'][:11]
         outif = 'qvo' + qos['egress_id'][:11]
@@ -341,6 +341,8 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
         if len(outif) != 14:
             LOG.error(_("invalid egress interface %s"), outif)
             return
+
+        LOG.debug(_("BRINT PORTS: %s"), self.int_br.get_port_name_list())
 
         inport = self.int_br.get_port_ofport(inif)
         if inport == ovs_lib.INVALID_OFPORT:
