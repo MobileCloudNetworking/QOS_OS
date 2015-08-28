@@ -390,7 +390,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                          'dl_proto': 0x0800,
                          'actions': 'set_queue:%s,normal' % queueid}
 
-            for qos_cl in qos['qos_classifiers']:
+            for qos_cl in qos_param['qos_classifiers']:
                 qos_cl['type'] = qos_cl['type'].lower()
                 qos_cl['policy'] = qos_cl['policy'].lower()
 
