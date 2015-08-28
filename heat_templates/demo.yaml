@@ -87,11 +87,11 @@ resources:
   qos_classifier1:
     type: OS::Neutron::qos_classifier
     properties:
-      type: l3-protocol
+      type: l4-protocol
       policy: tcp
 
   qos_classifier2:
     type: OS::Neutron::qos_classifier
     properties:
-      type: l3-protocol
+      type: l4-protocol
       policy: udp

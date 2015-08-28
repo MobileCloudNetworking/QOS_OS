@@ -18,6 +18,7 @@ import hashlib
 import signal
 import sys
 import time
+import re
 
 import eventlet
 eventlet.monkey_patch()
@@ -327,8 +328,91 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
         LOG.debug(_("port_update message processed for port %s"), port['id'])
 
     def qos_update(self, context, **kwargs):
-        info = kwargs.get('info')
-        LOG.debug(_("qos_update message processed %s"), str(info))
+        qos = kwargs.get('info')
+        LOG.debug(_("qos_update message receuved: %s"), str(qos))
+
+        inif = 'qvo' + qos['ingress_id'][:11]
+        outif = 'qvo' + qos['egress_id'][:11]
+
+        if len(inif) != 14:
+            LOG.error(_("invalid ingress interface %s"), inif)
+            return
+
+        if len(outif) != 14:
+            LOG.error(_("invalid egress interface %s"), outif)
+            return
+
+        inport = self.int_br.get_port_ofport(inif)
+        if inport == ovs_lib.INVALID_OFPORT:
+            LOG.error(_("cannot find ofport corresponding to "\
+                        "interface %s"), inif)
+            return
+
+        outport = self.int_br.get_port_ofport(outif)
+        if outport == ovs_lib.INVALID_OFPORT:
+            LOG.error(_("cannot find ofport corresponding to "\
+                        "interface %s"), outif)
+            return
+
+        qos_params_types = ['rate-limit']
+        qos_classifiers_types = ['l4-protocol']
+
+        for qos_param in qos['qos_params']:
+            qos_param['type'] = qos_param['type'].lower()
+            qos_param['policy'] = qos_param['policy'].lower()
+
+            if qos_param['type'] not in qos_params_types:
+                LOG.error(_("invalid qos_param type '%s', supported "\
+                            "types are %s"), qos_param['type'],
+                            qos_params_types)
+                continue
+
+            # Assume rate-limit here
+            m = re.search(r'(\d)+\s*([kmg]?bps)', qos_param['policy'])
+            if !m:
+                LOG.error(_("Invalid rate limit specification '%s', "\
+                            "must be in the form 'NUM [k|m|g]bps'"),
+                            qos_param['policy'])
+                continue
+
+            rate = int(m.group(1)) * {'b': 1, 'k': pow(10, 3), 'm': pow(10, 6),
+                                      'g': pow(10, 9)}[m.group(2)[0]]
+            queueid = int(qos_param['id'][:4], 16)
+
+            vsctl_cmd = ['--', 'set', 'port', outif, 'qos=@newqos', '--',
+                         '--id=@newqos', 'create', 'qos', 'type=linux-htb',
+                         'other-config:max-rate=%s' % rate,
+                         'queues=%s=@newq' % queueid, '--',
+                         '--id=@newq', 'create', 'queue',
+                         'other-config:max-rate=%s' % (4 * pow(10, 9))]
+            LOG.debug(_("ovs-vsctl command: %s"), vsctl_cmd)
+
+            flow_dict = {'priority': 100,
+                         'in_port': inport,
+                         'dl_proto': 0x0800,
+                         'actions': 'set_queue:%s,normal' % queueid}
+
+            for qos_cl in qos['qos_classifiers']:
+                qos_cl['type'] = qos_cl['type'].lower()
+                qos_cl['policy'] = qos_cl['policy'].lower()
+
+                if qos_cl['type'] not in qos_classifiers_types:
+                    LOG.error(_("invalid qos_classifier type '%s', supported "\
+                                "types are %s"), qos_cl['type'],
+                                qos_classifiers_types)
+                    continue
+
+                # Assume l4-protocol here
+                l4_types = ['tcp', 'udp']
+                if qos_cl['policy'] not in l4_types:
+                    LOG.error(_("invalid l4 protocol type '%s', supported "\
+                                "types are %s"), qos_cl['policy'],
+                                l4_types)
+                    continue
+
+                flow_dict['nw_proto']: {'tcp': 6, 'udp': 17}[qos_cl['policy']]
+
+            LOG.debug(_("ovs-ofctl flow-add command: %s"), flow_dict)
 
     def tunnel_update(self, context, **kwargs):
         LOG.debug(_("tunnel_update received"))
