@@ -387,7 +387,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
             flow_dict = {'priority': 100,
                          'in_port': inport,
-                         'dl_proto': 0x0800,
+                         'dl_type': 0x0800,
                          'actions': 'set_queue:%s,normal' % queueid}
 
             for qos_cl in qos_param['qos_classifiers']:
