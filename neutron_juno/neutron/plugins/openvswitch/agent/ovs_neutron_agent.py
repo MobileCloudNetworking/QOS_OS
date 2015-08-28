@@ -259,6 +259,8 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
         self.quitting_rpc_timeout = quitting_rpc_timeout
 
+        self.pending_qoss = dict()
+
     def _report_state(self):
         # How many devices are likely used by a VM
         self.agent_state.get('configurations')['devices'] = (
@@ -330,17 +332,11 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
     def qos_update(self, context, **kwargs):
         qos = kwargs.get('info')
         LOG.debug(_("qos_update message received: %s"), str(qos))
+        self.pending_qoss[(qos['ingress_id'], qos['egress_id'])] = qos
 
+    def realize_qos(self, qos):
         inif = 'qvo' + qos['ingress_id'][:11]
         outif = 'qvo' + qos['egress_id'][:11]
-
-        if len(inif) != 14:
-            LOG.error(_("invalid ingress interface %s"), inif)
-            return
-
-        if len(outif) != 14:
-            LOG.error(_("invalid egress interface %s"), outif)
-            return
 
         LOG.debug(_("BRINT PORTS: %s"), self.int_br.get_port_name_list())
 
@@ -1236,6 +1232,16 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                 LOG.warn(_("Device %s not defined on plugin"), device)
                 if (port and port.ofport != -1):
                     self.port_dead(port)
+
+        for (indev, outdev), qos in self.pending_qoss.iteritems():
+            LOG.debug(_("PROBING QOS %s %s"), indev, outdev)
+            if self.int_br.get_vif_port_by_id(indev) and \
+                    self.int_br.get_vif_port_by_id(outdev):
+                # Realize qos configuration and remove the
+                # qos configuration entry from the pending list
+                realize_qos(qos)
+                del self.pending_qoss[(indev, outdev)]
+
         return skipped_devices
 
     def treat_ancillary_devices_added(self, devices):
