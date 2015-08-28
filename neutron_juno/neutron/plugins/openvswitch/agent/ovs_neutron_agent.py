@@ -416,6 +416,10 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
             LOG.debug(_("ovs-ofctl flow-add command: %s"), flow_dict)
 
+            # Execute the vsctl and ofctl commands
+            self.int_br.run_vsctl(vsctl_cmd)
+            self.int_br.add_flow(**flow_dict)
+
     def tunnel_update(self, context, **kwargs):
         LOG.debug(_("tunnel_update received"))
         if not self.enable_tunneling:
