@@ -369,7 +369,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
             # Assume rate-limit here
             m = re.search(r'(\d)+\s*([kmg]?bps)', qos_param['policy'])
-            if !m:
+            if m == None:
                 LOG.error(_("Invalid rate limit specification '%s', "\
                             "must be in the form 'NUM [k|m|g]bps'"),
                             qos_param['policy'])
