@@ -1239,7 +1239,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                     self.int_br.get_vif_port_by_id(outdev):
                 # Realize qos configuration and remove the
                 # qos configuration entry from the pending list
-                realize_qos(qos)
+                self.realize_qos(qos)
                 del self.pending_qoss[(indev, outdev)]
 
         return skipped_devices
