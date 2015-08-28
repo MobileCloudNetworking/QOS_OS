@@ -410,7 +410,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                                 l4_types)
                     continue
 
-                flow_dict['nw_proto']: {'tcp': 6, 'udp': 17}[qos_cl['policy']]
+                flow_dict['nw_proto'] = {'tcp': 6, 'udp': 17}[qos_cl['policy']]
 
             LOG.debug(_("ovs-ofctl flow-add command: %s"), flow_dict)
 
