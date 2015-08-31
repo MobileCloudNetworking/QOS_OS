@@ -423,7 +423,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                     continue
                 flow_elems.append("%s=%s" % (key, str(value)))
             flow_elems.append("%s=%s" % ('actions', flow_dict['actions'])
-            flow_cmd = ['sudo', 'ovs-ofctl', 'add-flow', self.int_br.br_name] + [','.join(flow_elems)]
+            flow_cmd = ['sudo', 'ovs-ofctl', 'add-flow', self.int_br.br_name, ','.join(flow_elems)]
             LOG.debug(_("ADD-FLOW CMD %s"), flow_cmd)
             subprocess.call(flow_cmd)
 
