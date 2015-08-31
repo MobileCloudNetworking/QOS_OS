@@ -19,6 +19,7 @@ import signal
 import sys
 import time
 import re
+import subprocess
 
 import eventlet
 eventlet.monkey_patch()
@@ -373,8 +374,6 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                             qos_param['policy'])
                 continue
 
-            LOG.debug(_("MATCHED: '%s' '%s'"), m.group(1), m.group(2))
-
             rate = int(m.group(1)) * {'b': 1, 'k': pow(10, 3), 'm': pow(10, 6),
                                       'g': pow(10, 9)}[m.group(2)[0]]
             queueid = int(qos_param['id'][:4], 16)
@@ -416,11 +415,17 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
             # Execute the vsctl and ofctl commands
             self.int_br.run_vsctl(vsctl_cmd)
-            self.int_br.add_flow(priority=flow_dict['priority'],
-                                 in_port=flow_dict['in_port'],
-                                 dl_type=flow_dict['dl_type'],
-                                 actions=flow_dict['actions'],
-                                 nw_proto=flow_dict['nw_proto'])
+
+            #self.int_br.add_flow(**flow_dict)
+            flow_elems = []
+            for key, value in flow_dict.iteritems():
+                if key == 'actions':
+                    continue
+                flow_elems.append("%s=%s" % (key, str(value)))
+            flow_elems.append("%s=%s" % ('actions', flow_dict['actions'])
+            flow_cmd = ['sudo', 'ovs-ofctl', 'add-flow', self.int_br.br_name] + [','.join(flow_elems)]
+            LOG.debug(_("ADD-FLOW CMD %s"), flow_cmd)
+            subprocess.call(flow_cmd)
 
     def tunnel_update(self, context, **kwargs):
         LOG.debug(_("tunnel_update received"))
