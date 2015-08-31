@@ -338,7 +338,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
         inif = 'qvo' + qos['ingress_id'][:11]
         outif = 'qvo' + qos['egress_id'][:11]
 
-        LOG.debug(_("BRINT PORTS: %s"), self.int_br.get_port_name_list())
+        #LOG.debug(_("BRINT PORTS: %s"), self.int_br.get_port_name_list())
 
         inport = self.int_br.get_port_ofport(inif)
         if inport == ovs_lib.INVALID_OFPORT:
@@ -366,12 +366,14 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                 continue
 
             # Assume rate-limit here
-            m = re.search(r'(\d)+\s*([kmg]?bps)', qos_param['policy'])
+            m = re.search(r'(\d+)\s*([kmg]?bps)', qos_param['policy'])
             if m == None:
                 LOG.error(_("Invalid rate limit specification '%s', "\
                             "must be in the form 'NUM [k|m|g]bps'"),
                             qos_param['policy'])
                 continue
+
+            LOG.debug(_("MATCHED: '%s' '%s'"), m.group(1), m.group(2))
 
             rate = int(m.group(1)) * {'b': 1, 'k': pow(10, 3), 'm': pow(10, 6),
                                       'g': pow(10, 9)}[m.group(2)[0]]
@@ -414,7 +416,11 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
             # Execute the vsctl and ofctl commands
             self.int_br.run_vsctl(vsctl_cmd)
-            self.int_br.add_flow(**flow_dict)
+            self.int_br.add_flow(priority=flow_dict['priority'],
+                                 in_port=flow_dict['in_port'],
+                                 dl_type=flow_dict['dl_type'],
+                                 actions=flow_dict['actions'],
+                                 nw_proto=flow_dict['nw_proto'])
 
     def tunnel_update(self, context, **kwargs):
         LOG.debug(_("tunnel_update received"))
