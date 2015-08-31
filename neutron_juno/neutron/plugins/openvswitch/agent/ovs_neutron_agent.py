@@ -261,6 +261,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
         self.quitting_rpc_timeout = quitting_rpc_timeout
 
         self.pending_qoss = dict()
+        self.bound_vifs = set()
 
     def _report_state(self):
         # How many devices are likely used by a VM
@@ -753,6 +754,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                                          str(lvm.vlan))
             if port.ofport != -1:
                 self.int_br.delete_flows(in_port=port.ofport)
+            self.bound_vifs.add(port.port_name)
 
     def port_unbound(self, vif_id, net_uuid=None):
         '''Unbind port.
@@ -1245,8 +1247,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
         remove_entries = []
         for (indev, outdev), qos in self.pending_qoss.iteritems():
             LOG.debug(_("PROBING QOS %s %s"), indev, outdev)
-            if self.int_br.get_vif_port_by_id(indev) and \
-                    self.int_br.get_vif_port_by_id(outdev):
+            if indev in self.bound_vifs and outdev in self.bound_vifs:
                 # Realize qos configuration and remove the
                 # qos configuration entry from the pending list
                 self.realize_qos(qos)
