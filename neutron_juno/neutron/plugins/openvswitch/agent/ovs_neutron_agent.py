@@ -411,8 +411,6 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
                 flow_dict['nw_proto'] = {'tcp': 6, 'udp': 17}[qos_cl['policy']]
 
-            LOG.debug(_("ovs-ofctl flow-add command: %s"), flow_dict)
-
             # Execute the vsctl and ofctl commands
             self.int_br.run_vsctl(vsctl_cmd)
 
@@ -423,9 +421,9 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                     continue
                 flow_elems.append("%s=%s" % (key, str(value)))
             flow_elems.append("%s=%s" % ('actions', flow_dict['actions']))
-            flow_cmd = ['sudo', 'ovs-ofctl', 'add-flow', self.int_br.br_name, ','.join(flow_elems)]
+            flow_cmd = ['ovs-ofctl', 'add-flow', self.int_br.br_name, ','.join(flow_elems)]
             LOG.debug(_("ADD-FLOW CMD %s"), flow_cmd)
-            subprocess.call(flow_cmd)
+            utils.execute(flow_cmd, root_helper=self.root_helper)
 
     def tunnel_update(self, context, **kwargs):
         LOG.debug(_("tunnel_update received"))
