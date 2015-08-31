@@ -387,7 +387,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                          'queues=%s=@newq' % queueid, '--',
                          '--id=@newq', 'create', 'queue',
                          'other-config:max-rate=%s' % (4 * pow(10, 9))]
-            LOG.debug(_("ovs-vsctl command: %s"), vsctl_cmd)
+            LOG.debug(_("ovs-vsctl qos command: %s"), vsctl_cmd)
 
             flow_dict = {'priority': 100,
                          'in_port': inport,
@@ -417,16 +417,8 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
             # Execute the vsctl and ofctl commands
             self.int_br.run_vsctl(vsctl_cmd)
 
-            #self.int_br.add_flow(**flow_dict)
-            flow_elems = []
-            for key, value in flow_dict.iteritems():
-                if key == 'actions':
-                    continue
-                flow_elems.append("%s=%s" % (key, str(value)))
-            flow_elems.append("%s=%s" % ('actions', flow_dict['actions']))
-            flow_cmd = ['ovs-ofctl', 'add-flow', self.int_br.br_name, ','.join(flow_elems)]
-            LOG.debug(_("ADD-FLOW CMD %s"), flow_cmd)
-            utils.execute(flow_cmd, root_helper=self.root_helper)
+            LOG.debug(_("ovs-ofctl qos command: %s"), flow_dict)
+            self.int_br.add_flow(**flow_dict)
 
     def tunnel_update(self, context, **kwargs):
         LOG.debug(_("tunnel_update received"))
