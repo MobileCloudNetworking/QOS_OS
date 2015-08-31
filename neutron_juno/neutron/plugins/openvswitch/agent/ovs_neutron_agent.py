@@ -334,7 +334,9 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
     def qos_update(self, context, **kwargs):
         qos = kwargs.get('info')
         LOG.debug(_("qos_update message received: %s"), str(qos))
-        self.pending_qoss[(qos['ingress_id'], qos['egress_id'])] = qos
+        inif = 'qvo' + qos['ingress_id'][:11]
+        outif = 'qvo' + qos['egress_id'][:11]
+        self.pending_qoss[(inif, outif)] = qos
 
     def realize_qos(self, qos):
         inif = 'qvo' + qos['ingress_id'][:11]
