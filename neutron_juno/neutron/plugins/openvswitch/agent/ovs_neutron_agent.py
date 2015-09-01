@@ -356,6 +356,16 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                         "interface %s"), outif)
             return
 
+        vs_qos_id = self.int_br.db_get_val("port", outif, "qos")
+        LOG.debug(_("CHECKING CUR QOS %s"), vs_qos_id)
+        if vs_qos_id == "[]":
+            vsctl_cmd = ['--', 'set', 'port', outif, 'qos=@newqos', '--',
+                         '--id=@newqos', 'create', 'qos', 'type=linux-htb',
+                         'other-config:max-rate=%s' % (4 * pow(10, 9))]
+            LOG.debug(_("ovs-vsctl qos command: %s"), vsctl_cmd)
+            vs_qos_id = self.int_br.run_vsctl(vsctl_cmd)
+        LOG.debug(_("NOW CUR QOS is %s"), vs_qos_id)
+
         qos_params_types = ['rate-limit']
         qos_classifiers_types = ['l4-protocol']
 
@@ -381,12 +391,10 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                                       'g': pow(10, 9)}[m.group(2)[0]]
             queueid = int(qos_param['id'][:4], 16)
 
-            vsctl_cmd = ['--', 'set', 'port', outif, 'qos=@newqos', '--',
-                         '--id=@newqos', 'create', 'qos', 'type=linux-htb',
-                         'other-config:max-rate=%s' % (4 * pow(10, 9)),
-                         'queues=%s=@newq' % queueid, '--',
-                         '--id=@newq', 'create', 'queue',
-                         'other-config:max-rate=%s' % rate]
+            vsctl_cmd = ['--', '--id=@newq', 'create', 'queue',
+                         'other-config:max-rate=%s' % rate, '--',
+                         'add', 'qos', vs_qos_id, 'queues',
+                         '%s=@newq' % queueid]
             LOG.debug(_("ovs-vsctl qos command: %s"), vsctl_cmd)
 
             flow_dict = {'priority': 100,
