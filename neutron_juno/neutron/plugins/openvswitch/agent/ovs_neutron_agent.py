@@ -468,12 +468,12 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
             queueid = int(qos_param['id'][:4], 16)
 
+            vs_queue_id = self.int_br.db_get_val('qos', vs_qos_id,
+                                                 'queues:%s' % queueid)
             vsctl_cmd = ['--', 'remove', 'qos', vs_qos_id, 'queues', queueid]
             LOG.debug(_("ovs-vsctl qos command: %s"), vsctl_cmd)
             self.int_br.run_vsctl(vsctl_cmd)
 
-            vs_queue_id = self.int_br.db_get_val('qos', vs_qos_id,
-                                                 'queues:%s' % queueid)
             if vs_queue_id == None:
                 LOG.error(_("Cannot find queue uuid for key %s"), queueid)
                 continue
