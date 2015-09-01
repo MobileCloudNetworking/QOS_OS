@@ -448,8 +448,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
             assert(qos_param['type'] in qos_params_types)
 
-            flow_dict = {'priority': 100,
-                         'in_port': inport,
+            flow_dict = {'in_port': inport,
                          'dl_type': 0x0800}
 
             for qos_cl in qos_param['qos_classifiers']:
