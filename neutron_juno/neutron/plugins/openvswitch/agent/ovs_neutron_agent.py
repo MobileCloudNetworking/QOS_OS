@@ -383,10 +383,10 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
             vsctl_cmd = ['--', 'set', 'port', outif, 'qos=@newqos', '--',
                          '--id=@newqos', 'create', 'qos', 'type=linux-htb',
-                         'other-config:max-rate=%s' % rate,
+                         'other-config:max-rate=%s' % (4 * pow(10, 9)),
                          'queues=%s=@newq' % queueid, '--',
                          '--id=@newq', 'create', 'queue',
-                         'other-config:max-rate=%s' % (4 * pow(10, 9))]
+                         'other-config:max-rate=%s' % rate]
             LOG.debug(_("ovs-vsctl qos command: %s"), vsctl_cmd)
 
             flow_dict = {'priority': 100,
