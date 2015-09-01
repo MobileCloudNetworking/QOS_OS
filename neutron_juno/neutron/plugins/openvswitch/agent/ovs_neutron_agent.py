@@ -292,7 +292,8 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                      [constants.TUNNEL, topics.UPDATE],
                      [topics.SECURITY_GROUP, topics.UPDATE],
                      [topics.DVR, topics.UPDATE],
-                     [topics.QOS, topics.UPDATE]]
+                     [topics.QOS, topics.UPDATE],
+                     [topics.QOS, topics.DELETE]]
         if self.l2_pop:
             consumers.append([topics.L2POPULATION,
                               topics.UPDATE, cfg.CONF.host])
@@ -348,12 +349,6 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
         if inport == ovs_lib.INVALID_OFPORT:
             LOG.error(_("cannot find ofport corresponding to "\
                         "interface %s"), inif)
-            return
-
-        outport = self.int_br.get_port_ofport(outif)
-        if outport == ovs_lib.INVALID_OFPORT:
-            LOG.error(_("cannot find ofport corresponding to "\
-                        "interface %s"), outif)
             return
 
         vs_qos_id = self.int_br.db_get_val("port", outif, "qos")
@@ -426,6 +421,67 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
             LOG.debug(_("ovs-ofctl qos command: %s"), flow_dict)
             self.int_br.add_flow(**flow_dict)
+
+    def qos_delete(self, context, **kwargs):
+        qos = kwargs.get('info')
+        LOG.debug(_("qos_delete message received: %s"), str(qos))
+        inif = 'qvo' + qos['ingress_id'][:11]
+        outif = 'qvo' + qos['egress_id'][:11]
+
+        inport = self.int_br.get_port_ofport(inif)
+        if inport == ovs_lib.INVALID_OFPORT:
+            LOG.error(_("cannot find ofport corresponding to "\
+                        "interface %s"), inif)
+            return
+
+        vs_qos_id = self.int_br.db_get_val("port", outif, "qos")
+        if vs_qos_id == "[]":
+            LOG.error(_("Cannot find QOS for port %s"), outif)
+            return
+
+        qos_params_types = ['rate-limit']
+        qos_classifiers_types = ['l4-protocol']
+
+        for qos_param in qos['qos_params']:
+            qos_param['type'] = qos_param['type'].lower()
+            qos_param['policy'] = qos_param['policy'].lower()
+
+            assert(qos_param['type'] in qos_params_types)
+
+            flow_dict = {'priority': 100,
+                         'in_port': inport,
+                         'dl_type': 0x0800}
+
+            for qos_cl in qos_param['qos_classifiers']:
+                qos_cl['type'] = qos_cl['type'].lower()
+                qos_cl['policy'] = qos_cl['policy'].lower()
+
+                assert(qos_cl['type'] in qos_classifiers_types)
+
+                # Assume l4-protocol here
+                l4_types = ['tcp', 'udp']
+                assert(qos_cl['policy'] in l4_types)
+
+                flow_dict['nw_proto'] = {'tcp': 6, 'udp': 17}[qos_cl['policy']]
+
+            LOG.debug(_("ovs-ofctl qos command: %s"), flow_dict)
+            self.int_br.delete_flows(**flow_dict)
+
+            queueid = int(qos_param['id'][:4], 16)
+
+            vsctl_cmd = ['--', 'remove', 'qos', vs_qos_id, 'queues', queueid]
+            LOG.debug(_("ovs-vsctl qos command: %s"), vsctl_cmd)
+            self.int_br.run_vsctl(vsctl_cmd)
+
+            vs_queue_id = self.int_br.db_get_val('qos', vs_qos_id,
+                                                 'queues:%s' % queueid)
+            if vs_queue_id == None:
+                LOG.error(_("Cannot find queue uuid for key %s"), queueid)
+                continue
+
+            vsctl_cmd = ['--', 'destroy', 'queue', vs_queue_id]
+            LOG.debug(_("ovs-vsctl qos command: %s"), vsctl_cmd)
+            self.int_br.run_vsctl(vsctl_cmd)
 
     def tunnel_update(self, context, **kwargs):
         LOG.debug(_("tunnel_update received"))
