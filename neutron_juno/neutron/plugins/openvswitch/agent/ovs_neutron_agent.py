@@ -357,14 +357,13 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
             return
 
         vs_qos_id = self.int_br.db_get_val("port", outif, "qos")
-        LOG.debug(_("CHECKING CUR QOS %s"), vs_qos_id)
         if vs_qos_id == "[]":
+            LOG.debug(_("Adding QOS to port %s"), outif)
             vsctl_cmd = ['--', 'set', 'port', outif, 'qos=@newqos', '--',
                          '--id=@newqos', 'create', 'qos', 'type=linux-htb',
                          'other-config:max-rate=%s' % (4 * pow(10, 9))]
             LOG.debug(_("ovs-vsctl qos command: %s"), vsctl_cmd)
-            vs_qos_id = self.int_br.run_vsctl(vsctl_cmd)
-        LOG.debug(_("NOW CUR QOS is %s"), vs_qos_id)
+            vs_qos_id = self.int_br.run_vsctl(vsctl_cmd).rstrip("\n\r")
 
         qos_params_types = ['rate-limit']
         qos_classifiers_types = ['l4-protocol']
