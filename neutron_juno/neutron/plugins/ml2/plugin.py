@@ -1284,9 +1284,9 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
 
         try:
             LOG.info("Trying to notify agent about QOS creation")
-            self.notifier.qos_update(context, qu)
+            self.notifier.qos_create(context, qu)
         except ml2_exc.MechanismDriverError:
-            LOG.error(_("Agent update failed, deleting qos with id '%s'"),
+            LOG.error(_("Agent notification failed, deleting qos with id '%s'"),
                       row['id'])
             self.delete_qos(context, row['id'])
             return None
@@ -1320,7 +1320,7 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
             LOG.info("Trying to notify agent about QOS creation")
             self.notifier.qos_delete(context, qu)
         except ml2_exc.MechanismDriverError:
-            LOG.error(_("Agent update failed, deleting qos with id '%s'"),
+            LOG.error(_("Agent nofification failed, deleting qos with id '%s'"),
                       row['id'])
             self.delete_qos(context, row['id'])
             return None

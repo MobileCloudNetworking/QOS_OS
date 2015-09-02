@@ -200,9 +200,9 @@ class AgentNotifierApi(n_rpc.RpcProxy,
         self.topic_port_update = topics.get_topic_name(topic,
                                                        topics.PORT,
                                                        topics.UPDATE)
-        self.topic_qos_update = topics.get_topic_name(topic,
+        self.topic_qos_create = topics.get_topic_name(topic,
                                                       topics.QOS,
-                                                      topics.UPDATE)
+                                                      topics.CREATE)
         self.topic_qos_delete = topics.get_topic_name(topic,
                                                       topics.QOS,
                                                       topics.DELETE)
@@ -223,12 +223,12 @@ class AgentNotifierApi(n_rpc.RpcProxy,
                                        physical_network=physical_network),
                          topic=self.topic_port_update)
 
-    def qos_update(self, context, info):
+    def qos_create(self, context, info):
         self.fanout_cast(context,
-                         self.make_msg('qos_update',
+                         self.make_msg('qos_create',
                                        info=info,
                                       ),
-                         topic=self.topic_qos_update)
+                         topic=self.topic_qos_create)
 
     def qos_delete(self, context, info):
         self.fanout_cast(context,
