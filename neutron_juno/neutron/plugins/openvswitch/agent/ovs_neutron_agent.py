@@ -435,7 +435,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
             return
 
         vs_qos_id = self.int_br.db_get_val("port", outif, "qos")
-        if vs_qos_id == "[]":
+        if vs_qos_id == "[]" or vs_qos_id == "":
             LOG.error(_("Cannot find QOS for port %s"), outif)
             return
 
