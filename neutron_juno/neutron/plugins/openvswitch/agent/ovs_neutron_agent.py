@@ -481,8 +481,8 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
 
         queues = self.int_br.db_get_val("qos", vs_qos_id , "queues")
         if queues == "{}":
-            vsctl_cmd = ['--', 'clear', 'port', outif, 'qos',
-                         '--', 'destroy', 'qos', vs_qos_id]
+            # ['--', 'clear', 'port', outif, 'qos']
+            vsctl_cmd = ['--', 'destroy', 'qos', vs_qos_id]
             LOG.debug(_("ovs-vsctl qos command: %s"), vsctl_cmd)
             self.int_br.run_vsctl(vsctl_cmd)
 
