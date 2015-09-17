@@ -361,7 +361,8 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
             vs_qos_id = self.int_br.run_vsctl(vsctl_cmd).rstrip("\n\r")
 
         qos_params_types = ['rate-limit']
-        qos_classifiers_types = ['l4-protocol']
+        qos_classifiers_types = ['l4-protocol', 'l4-port']
+        nw_proto_map = {'tcp': 6, 'udp': 17}
 
         for qos_param in qos['qos_params']:
             qos_param['type'] = qos_param['type'].lower()
@@ -406,15 +407,42 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                                 qos_classifiers_types)
                     continue
 
-                # Assume l4-protocol here
-                l4_types = ['tcp', 'udp']
-                if qos_cl['policy'] not in l4_types:
-                    LOG.error(_("invalid l4 protocol type '%s', supported "\
-                                "types are %s"), qos_cl['policy'],
-                                l4_types)
-                    continue
+                if qos_cl['type'] == 'l4-protocol':
+                    l4_types = ['tcp', 'udp']
+                    if qos_cl['policy'] not in l4_types:
+                        LOG.error(_("invalid l4 protocol type '%s', supported"\
+                                    " types are %s"), qos_cl['policy'],
+                                    l4_types)
+                        continue
 
-                flow_dict['nw_proto'] = {'tcp': 6, 'udp': 17}[qos_cl['policy']]
+                    flow_dict['nw_proto'] = nw_proto_map[qos_cl['policy']]
+
+                elif qos_cl['type'] == 'l4-port':
+                    try:
+                        port = int(qos_cl['policy'])
+                    except ValueError:
+                        LOG.error(_("invalid l4 port: '%s' is not "\
+                                    "numeric"), qos_cl['policy'])
+                        continue
+
+                    if port <= 0 || port > 65535:
+                        LOG.error(_("invalid l4 port: '%s' is not "\
+                                    "a valid port"), qos_cl['policy'])
+                        continue
+
+                    flow_dict['port'] = port
+
+            # Sanitize 'nw_proto'
+            if 'port' in flow_dict:
+                if 'nw_proto' not in flow_dict:
+                    # Assume TCP if not specified
+                    flow_dict['nw_proto'] = nw_proto_map['tcp']
+
+                if flow_dict['nw_proto'] == nw_proto_map['tcp']:
+                    flow_dict['tcp_dst'] = flow_dict['port']
+                else:
+                    flow_dict['udp_dst'] = flow_dict['port']
+                del flow_dict['port']
 
             # Execute the vsctl and ofctl commands
             self.int_br.run_vsctl(vsctl_cmd)
