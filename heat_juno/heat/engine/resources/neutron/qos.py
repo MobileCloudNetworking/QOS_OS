@@ -187,16 +187,17 @@ class qos_classifier(neutron.NeutronResource):
             required=True,
             update_allowed=True,
             constraints=[
-                constraints.AllowedValues(['l4-protocol']),
+                constraints.AllowedValues(['l4-protocol', 'l4-port']),
             ]
         ),
         POLICY: properties.Schema(
             properties.Schema.STRING,
-            _('a level 4 protocol if type is l4_protocol'),
+            _('a level 4 protocol if type is l4-protocol, a port if'\
+              'type is l4-port'),
             required=True,
             update_allowed=True,
             constraints=[
-                constraints.AllowedValues(['udp', 'tcp']),
+                #constraints.AllowedValues(['udp', 'tcp']),
             ]
         ),
     }
