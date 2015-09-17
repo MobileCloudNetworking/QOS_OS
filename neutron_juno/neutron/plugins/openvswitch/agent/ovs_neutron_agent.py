@@ -425,7 +425,7 @@ class OVSNeutronAgent(n_rpc.RpcCallback,
                                     "numeric"), qos_cl['policy'])
                         continue
 
-                    if port <= 0 || port > 65535:
+                    if port <= 0 or port > 65535:
                         LOG.error(_("invalid l4 port: '%s' is not "\
                                     "a valid port"), qos_cl['policy'])
                         continue
