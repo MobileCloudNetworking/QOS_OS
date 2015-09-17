@@ -66,7 +66,7 @@ resources:
     properties:
       type: rate-limit
       policy: 10000 kbps
-      qos_classifiers: [ get_resource: qos_classifier1 ]
+      qos_classifiers: [ get_resource: qos_classifier1, get_resource: qos_classifier3 ]
 
   qos_param2:
     type: OS::Neutron::qos_param
@@ -86,3 +86,9 @@ resources:
     properties:
       type: l4-protocol
       policy: udp
+
+  qos_classifier3:
+    type: OS::Neutron::qos_classifier
+    properties:
+      type: l4-port
+      policy: 80
