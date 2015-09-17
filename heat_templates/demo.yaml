@@ -38,7 +38,7 @@ resources:
     type: OS::Nova::Server
     properties:
       name: host1
-      image: cirros-0.3.2-x86_64-uec
+      image: tinycore
       flavor: m1.tiny
       networks:
         - port: { get_resource: host1_port }
@@ -47,19 +47,10 @@ resources:
     type: OS::Nova::Server
     properties:
       name: host2
-      image: cirros-0.3.2-x86_64-uec
+      image: tinycore
       flavor: m1.tiny
       networks:
         - port: { get_resource: host2_port }
-
-  router:
-    type: OS::Neutron::Router
-
-  router_interface1:
-    type: OS::Neutron::RouterInterface
-    properties:
-      router_id: { get_resource: router }
-      subnet_id: { get_resource: test_subnet_1 }
 
   qos1:
     type: OS::Neutron::qos
@@ -81,7 +72,7 @@ resources:
     type: OS::Neutron::qos_param
     properties:
       type: rate-limit
-      policy: 20000 kbps
+      policy: 5000 kbps
       qos_classifiers: [ get_resource: qos_classifier2 ]
 
   qos_classifier1:
